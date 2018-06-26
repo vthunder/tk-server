@@ -32,6 +32,18 @@ class User extends Model {
     return this.hasMany('App/Models/Token')
   }
 
+  orders () {
+    return this.hasMany('App/Models/Order')
+  }
+
+  subscriptions () {
+    return this.hasMany('App/Models/Subscription')
+  }
+
+  creditCards () {
+    return this.hasMany('App/Models/CreditCard')
+  }
+
   static get traits() {
     return [
       '@provider:Adonis/Acl/HasRole',
