@@ -26,6 +26,7 @@
     "@adonisjs/lucid": "^5.0.4",
     "@adonisjs/persona": "^1.0.5",
     "adonis-acl": "^1.1.0",
+    "adonis-graphql": "^1.0.1-alpha-3",
     "mysql": "^2.15.0"
   },
   "devDependencies": {},

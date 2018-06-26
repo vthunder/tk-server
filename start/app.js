@@ -18,6 +18,7 @@ const providers = [
   '@adonisjs/lucid/providers/LucidProvider',
   'adonis-acl/providers/AclProvider',
   '@adonisjs/persona/providers/PersonaProvider',
+  'adonis-graphql/providers/GraphQLProvider',
 ]
 
 /*
