@@ -11,12 +11,74 @@
 |
 */
 
-// const Factory = use('Factory')
+const Factory = use('Factory')
+const Hash = use('Hash')
+const moment = use('moment')
 
-/**
-  Factory.blueprint('App/Models/User', (faker) => {
-    return {
-      username: faker.username()
-    }
-  })
+Factory.blueprint('App/Models/User', async (faker) => {
+  return {
+    name: faker.username(),
+    email: faker.email(),
+    password: await Hash.make(faker.password()),
+  };
+});
+
+Factory.blueprint('App/Models/CalendarEvent', (faker) => {
+  const daysFromNow = faker.integer({ min: 1, max: 30 });
+  const start = moment().add(daysFromNow, 'days').format('YYYY-MM-DD HH:mm:ss');
+  const end = moment(start).add(1, 'hours').format('YYYY-MM-DD HH:mm:ss');
+  const price = faker.integer({ min: 0, max: 5 }) * 2500;
+  const member_price = Math.floor(Math.abs(price - 2500), 0);
+  return {
+    title: faker.sentence(),
+    is_all_day: faker.bool({ likelihood: 30 }),
+    start,
+    end,
+    description: faker.paragraph(),
+    category: faker.pickone(['class', 'meetup', 'talk', 'private']),
+    price,
+    member_price,
+  };
+});
+/*
+Factory.blueprint('App/Models/Category', (faker) => {
+  return {
+  }
+});
+
+Factory.blueprint('App/Models/CreditCard', (faker) => {
+  return {
+  }
+});
+
+Factory.blueprint('App/Models/Ho', (faker) => {
+  return {
+  }
+});
+
+Factory.blueprint('App/Models/Order', (faker) => {
+  return {
+  }
+});
+
+Factory.blueprint('App/Models/OrderItem', (faker) => {
+  return {
+  }
+});
+
+Factory.blueprint('App/Models/Product', (faker) => {
+  return {
+  }
+});
+
+Factory.blueprint('App/Models/Subscription', (faker) => {
+  return {
+  }
+});
+
+Factory.blueprint('App/Models/Token', (faker) => {
+  return {
+  }
+});
+
 */
