@@ -1,5 +1,7 @@
 'use strict'
 
+const path = use('path')
+
 /*
 |--------------------------------------------------------------------------
 | Providers
@@ -19,6 +21,10 @@ const providers = [
   'adonis-acl/providers/AclProvider',
   '@adonisjs/persona/providers/PersonaProvider',
   'adonis-graphql/providers/GraphQLProvider',
+  '@adonisjs/validator/providers/ValidatorProvider',
+  '@adonisjs/mail/providers/MailProvider',
+  '@adonisjs/framework/providers/ViewProvider',
+  path.join(__dirname, '..', 'providers', 'MailchimpProvider'),
 ]
 
 /*
