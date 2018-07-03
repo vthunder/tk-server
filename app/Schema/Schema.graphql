@@ -1,17 +1,63 @@
 type User {
-  id: Int!
+  id: Int
   name: String!
   email: String!
+  jwt: JWT
+}
+
+type JWT {
+  type: String!
+  token: String!
+  refreshToken: String
+}
+
+type Product {
+  title: String
+  category: String
+  description: String
+  billingDescription: String
+  price: Int
+  memberPrice: Int
+  bundledUnits: Int
+  unit: String
+  isSubscription: Boolean
+  subscriptionPeriod: String
+  subscriptionName: String
+  subscriptionPlan: String
+}
+
+type Event {
+  id: Int
+  title: String!
+  start: String!
+  end: String!
+  allDay: Boolean
+  description: String
+  category: String
+  price: Int
+  memberPrice: Int
+}
+
+input ProfileInput {
+  name: String
+  email: String
 }
 
 type Query {
+  ping: String
   me: User
+  products: [Product]
+  calendarEvents: [Event]
 }
 
 type Mutation {
   signup (name: String!, email: String!, password: String!): User
   login (email: String!, password: String!): User
-  changeName (new_name: String!): String
-  changeEmail (new_email: String!): String
-  changePassword (old_password: String!, new_password: String!): String
+  verifyEmail (token: String!): String
+  updateProfile(profile: ProfileInput!): String
+  updatePassword (old_password: String!, password: String!): String
+  forgotPassword (email: String!): String
+  updatePasswordByToken (token: String!, password: String!): String
+
+  mailingListSignup (name: String, email: String!): String
 }
