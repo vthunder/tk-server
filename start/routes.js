@@ -16,14 +16,6 @@
 const Route = use('Route')
 const GraphQLServer = use('Adonis/Addons/GraphQLServer')
 
-// Route.get('/', ({ request }) => {
-//   return { greeting: 'Hello world in JSON' }
-// })
-
-Route.route('/', (context) => {
+Route.route('/api', (context) => {
   return GraphQLServer.handle(context, { debug: false })
 }, ['GET', 'POST'])
-
-Route.get('/graphiql', (context) => {
-  return GraphQLServer.handleUI(context, { endpointURL: '/' })
-})
