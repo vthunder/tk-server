@@ -9,7 +9,7 @@ class Product extends Model {
 
   static get computed() {
     return ['billingDescription', 'memberPrice', 'bundledUnits',
-            'isSubscription', 'subscriptionPeriod'
+            'isSubscription', 'subscriptionPeriod',
             'subscriptionName', 'subscriptionPlan'];
   }
 
