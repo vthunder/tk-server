@@ -12,6 +12,7 @@ type JWT {
 }
 
 type Product {
+  id: Int
   title: String
   category: String
   description: String
@@ -24,13 +25,16 @@ type Product {
   subscriptionPeriod: String
   subscriptionName: String
   subscriptionPlan: String
+  createdAt: String
+  updatedAt: String
 }
 
 type Event {
   id: Int
   title: String!
   start: String!
-  end: String!
+  end: String
+  duration: Float
   allDay: Boolean
   description: String
   category: String
@@ -47,6 +51,7 @@ type Query {
   ping: String
   me: User
   products: [Product]
+  calendarEvent(id: Int!): Event
   calendarEvents: [Event]
 }
 
