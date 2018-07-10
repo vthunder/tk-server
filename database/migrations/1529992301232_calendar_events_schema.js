@@ -9,7 +9,7 @@ class CalendarEventsSchema extends Schema {
       table.string('title', 254).notNullable()
       table.boolean('is_all_day').defaultsTo(false)
       table.datetime('start').notNullable()
-      table.datetime('end')
+      table.float('duration')
       table.text('description')
       table.string('category', 80).notNullable().defaultsTo('class') // class, meetup, talk, private
       table.integer('price').defaultsTo(0)
