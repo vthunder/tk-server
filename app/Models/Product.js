@@ -1,6 +1,7 @@
 'use strict'
 
 const Model = use('Model')
+const moment = use('moment')
 
 class Product extends Model {
   categories () {
@@ -10,7 +11,8 @@ class Product extends Model {
   static get computed() {
     return ['billingDescription', 'memberPrice', 'bundledUnits',
             'isSubscription', 'subscriptionPeriod',
-            'subscriptionName', 'subscriptionPlan'];
+            'subscriptionName', 'subscriptionPlan',
+            'createdAt', 'updatedAt'];
   }
 
   getBillingDescription() {
@@ -39,6 +41,14 @@ class Product extends Model {
 
   getSubscriptionPlan() {
     return this.subscription_plan;
+  }
+
+  getCreatedAt() {
+    return moment(this.created_at).format('YYYY-MM-DD HH:mm:ss');
+  }
+
+  getUpdatedAt() {
+    return moment(this.updated_at).format('YYYY-MM-DD HH:mm:ss');
   }
 }
 
