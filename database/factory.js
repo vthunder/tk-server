@@ -25,15 +25,18 @@ Factory.blueprint('App/Models/User', async (faker) => {
 
 Factory.blueprint('App/Models/CalendarEvent', (faker) => {
   const daysFromNow = faker.integer({ min: 1, max: 30 });
-  const start = moment().add(daysFromNow, 'days').format('YYYY-MM-DD HH:mm:ss');
-  const end = moment(start).add(1, 'hours').format('YYYY-MM-DD HH:mm:ss');
+  const startDay = moment().add(daysFromNow, 'days');
+  const start = startDay.format('YYYY-MM-DD HH:mm:ss');
+  const duration = faker.integer({ min: 1, max: 4 });
+
   const price = faker.integer({ min: 0, max: 5 }) * 2500;
   const member_price = Math.floor(Math.abs(price - 2500), 0);
+
   return {
-    title: faker.sentence(),
+    title: faker.sentence({ words: 4 }),
     is_all_day: faker.bool({ likelihood: 30 }),
     start,
-    end,
+    duration,
     description: faker.paragraph(),
     category: faker.pickone(['class', 'meetup', 'talk', 'private']),
     price,
