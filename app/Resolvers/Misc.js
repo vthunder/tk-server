@@ -22,6 +22,10 @@ module.exports = {
       const products = await Product.all();
       return products.toJSON();
     },
+    calendarEvent: async (_, { id }) => {
+      const event = await CalendarEvent.find(id);
+      return event.toJSON();
+    },
     calendarEvents: async () => {
       const events = await CalendarEvent.all();
       return events.toJSON();
