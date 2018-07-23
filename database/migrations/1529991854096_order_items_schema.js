@@ -11,6 +11,7 @@ class OrderItemsSchema extends Schema {
       table.integer('product_id').unsigned().index()
       table.foreign('product_id').references('id').on('products').onDelete('restrict')
       table.integer('qty').notNullable().defaultsTo(1)
+      table.integer('price').notNullable()
       table.timestamps()
     })
   }
