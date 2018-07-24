@@ -52,7 +52,7 @@ module.exports = {
       await Persona.forgotPassword(email)
       return 'OK'
     },
-    update_passwordByToken: async (_, { token, password }) => {
+    update_password_by_token: async (_, { token, password }) => {
       await Persona.updatePasswordByToken(token,
                                           { password,
                                             password_confirmation: password })
