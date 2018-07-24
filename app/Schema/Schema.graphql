@@ -3,12 +3,70 @@ type User {
   name: String!
   email: String!
   jwt: JWT
+  is_member: Boolean
+  membership_sub: Subscription
 }
 
 type JWT {
   type: String!
   token: String!
   refreshToken: String
+}
+
+type CreditCard {
+  id: Int
+  brand: String
+  last_four: String
+  exp_month: String
+  exp_year: String
+}
+
+type Order {
+  id: Int
+  items: [OrderItem]
+  item_subtotal: Int
+  shipping: Int
+  handling: Int
+  tax: Int
+  adjustment: Int
+  total: Int
+  comment: String
+  created_at: String
+  updated_at: String
+}
+
+input OrderInput {
+  items: [OrderItemInput]
+  adjustment: Int
+  comment: String
+}
+
+type OrderItem {
+  id: Int
+  order: Order
+  product: Product
+  qty: Int
+  created_at: String
+  updated_at: String
+}
+
+input OrderItemInput {
+  product_id: Int
+  price: Int
+  is_member_price: Boolean
+  qty: Int
+}
+
+type Subscription {
+  id: Int
+  name: String
+  stripe_id: String
+  stripe_plan: String
+  qty: String
+  trial_ends_at: String
+  ends_at: String
+  created_at: String
+  updated_at: String
 }
 
 type Product {
@@ -27,6 +85,9 @@ type Product {
   subscription_plan: String
   created_at: String
   updated_at: String
+  member_discount_available: Boolean
+  list_unit_price: String
+  member_unit_price: String
 }
 
 type Event {
@@ -51,8 +112,10 @@ type Query {
   ping: String
   me: User
   products: [Product]
+  membership_info(type: String): Product
   calendar_event(id: Int!): Event
   calendar_events: [Event]
+  saved_cards: [CreditCard]
 }
 
 type Mutation {

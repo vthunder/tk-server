@@ -22,6 +22,13 @@ module.exports = {
       const products = await Product.all();
       return products.toJSON();
     },
+    membership_info: async (_, { type }) => {
+      const product = await Product.query().where({
+        subscription_name: 'membership',
+        subscription_period: type,
+      }).fetch()
+      return product.first().toJSON();
+    },
     calendar_event: async (_, { id }) => {
       const event = await CalendarEvent.find(id);
       return event.toJSON();
@@ -29,6 +36,10 @@ module.exports = {
     calendar_events: async () => {
       const events = await CalendarEvent.all();
       return events.toJSON();
+    },
+    saved_cards: async (_, args, { auth }) => {
+      const user = await auth.getUser()
+      return user.creditCards()
     },
   },
   Mutation: {
