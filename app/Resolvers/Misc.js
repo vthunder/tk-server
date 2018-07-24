@@ -22,17 +22,17 @@ module.exports = {
       const products = await Product.all();
       return products.toJSON();
     },
-    calendarEvent: async (_, { id }) => {
+    calendar_event: async (_, { id }) => {
       const event = await CalendarEvent.find(id);
       return event.toJSON();
     },
-    calendarEvents: async () => {
+    calendar_events: async () => {
       const events = await CalendarEvent.all();
       return events.toJSON();
     },
   },
   Mutation: {
-    mailingListSignup: async (_, { name, email }) => {
+    mailing_list_signup: async (_, { name, email }) => {
       const list = Config.get('mail.mailchimp.defaultList')
       try {
         await Mailchimp.post(`/lists/${list}/members`, {

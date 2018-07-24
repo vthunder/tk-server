@@ -6,7 +6,7 @@ const moment = use('moment')
 class CalendarEvent extends Model {
   // camelcase props for json -> graphql api
   static get computed() {
-    return ['allDay', 'end', 'memberPrice'];
+    return ['all_day', 'end'];
   }
 
   getAllDay() {
@@ -25,10 +25,6 @@ class CalendarEvent extends Model {
         .add(this.duration, 'hours')
         .format('YYYY-MM-DD HH:mm:ss')
     }
-  }
-
-  getMemberPrice() {
-    return this.member_price;
   }
 }
 

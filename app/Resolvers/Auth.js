@@ -32,27 +32,27 @@ module.exports = {
       user.jwt = await auth.generate(user)
       return user
     },
-    verifyEmail: async (obj, { token }, context) => {
+    verify_email: async (obj, { token }, context) => {
       await Persona.verifyEmail(token)
       return 'OK'
     },
-    updateProfile: async (_, args, { auth }) => {
+    update_profile: async (_, args, { auth }) => {
       const user = auth.getUser()
       const profile = { name, email } = args.profile
       await Persona.updateProfile(user, profile)
       return 'OK'
     },
-    updatePassword: async (_, { old_password, password }, { auth }) => {
+    update_password: async (_, { old_password, password }, { auth }) => {
       const user = auth.getUser()
       await Persona.updatePassword(user, { old_password, password,
                                            password_confirmation: password })
       return 'OK'
     },
-    forgotPassword: async (_, { email }) => {
+    forgot_password: async (_, { email }) => {
       await Persona.forgotPassword(email)
       return 'OK'
     },
-    updatePasswordByToken: async (_, { token, password }) => {
+    update_passwordByToken: async (_, { token, password }) => {
       await Persona.updatePasswordByToken(token,
                                           { password,
                                             password_confirmation: password })
