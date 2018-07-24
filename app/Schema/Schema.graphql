@@ -3,6 +3,8 @@ type User {
   name: String!
   email: String!
   jwt: JWT
+  is_member: Boolean
+  membership_sub: Subscription
 }
 
 type JWT {
@@ -11,22 +13,82 @@ type JWT {
   refreshToken: String
 }
 
+type CreditCard {
+  id: Int
+  brand: String
+  last_four: String
+  exp_month: String
+  exp_year: String
+}
+
+type Order {
+  id: Int
+  items: [OrderItem]
+  item_subtotal: Int
+  shipping: Int
+  handling: Int
+  tax: Int
+  adjustment: Int
+  total: Int
+  comment: String
+  created_at: String
+  updated_at: String
+}
+
+input OrderInput {
+  items: [OrderItemInput]
+  adjustment: Int
+  comment: String
+}
+
+type OrderItem {
+  id: Int
+  order: Order
+  product: Product
+  qty: Int
+  created_at: String
+  updated_at: String
+}
+
+input OrderItemInput {
+  product_id: Int
+  price: Int
+  is_member_price: Boolean
+  qty: Int
+}
+
+type Subscription {
+  id: Int
+  name: String
+  stripe_id: String
+  stripe_plan: String
+  qty: String
+  trial_ends_at: String
+  ends_at: String
+  created_at: String
+  updated_at: String
+}
+
 type Product {
   id: Int
   title: String
   category: String
   description: String
-  billingDescription: String
+  billing_description: String
   price: Int
-  memberPrice: Int
-  bundledUnits: Int
+  member_price: Int
+  bundled_units: Int
   unit: String
-  isSubscription: Boolean
-  subscriptionPeriod: String
-  subscriptionName: String
-  subscriptionPlan: String
-  createdAt: String
-  updatedAt: String
+  is_subscription: Boolean
+  subscription_period: String
+  subscription_name: String
+  subscription_plan: String
+  created_at: String
+  updated_at: String
+
+  member_discount_available: Boolean
+  list_unit_price: String
+  member_unit_price: String
 }
 
 type Event {
@@ -35,11 +97,11 @@ type Event {
   start: String!
   end: String
   duration: Float
-  allDay: Boolean
+  all_day: Boolean
   description: String
   category: String
   price: Int
-  memberPrice: Int
+  member_price: Int
 }
 
 input ProfileInput {
@@ -50,19 +112,23 @@ input ProfileInput {
 type Query {
   ping: String
   me: User
+  saved_cards: [CreditCard]
+  subscriptions: [Subscription]
   products: [Product]
-  calendarEvent(id: Int!): Event
-  calendarEvents: [Event]
+  calendar_event(id: Int!): Event
+  calendar_events: [Event]
+  orders: [Order]
 }
 
 type Mutation {
   signup (name: String!, email: String!, password: String!): User
   login (email: String!, password: String!): User
-  verifyEmail (token: String!): String
-  updateProfile(profile: ProfileInput!): String
-  updatePassword (old_password: String!, password: String!): String
-  forgotPassword (email: String!): String
-  updatePasswordByToken (token: String!, password: String!): String
-
-  mailingListSignup (name: String, email: String!): String
+  verify_email (token: String!): String
+  update_profile(profile: ProfileInput!): String
+  update_password (old_password: String!, password: String!): String
+  forgot_password (email: String!): String
+  update_password_by_token (token: String!, password: String!): String
+  mailing_list_signup (name: String, email: String!): String
+  new_order (order_input: OrderInput): Order
+  pay_order (order_id: Int, total: Int, token: String): String
 }
