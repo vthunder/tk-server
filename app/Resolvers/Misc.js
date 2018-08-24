@@ -43,10 +43,11 @@ module.exports = {
     },
   },
   Mutation: {
-    mailing_list_signup: async (_, { name, email }) => {
-      const list = Config.get('mail.mailchimp.defaultList')
+    mailing_list_signup: async (_, { name, email, list }) => {
+      list = Config.get('mail.mailchimp.defaultList', list)
+      const listId = Config.get(`mail.mailchimp.listIds.${list}`)
       try {
-        await Mailchimp.post(`/lists/${list}/members`, {
+        await Mailchimp.post(`/lists/${listId}/members`, {
           email_address: email,
           status: 'pending',
         })

@@ -85,6 +85,10 @@ module.exports = {
 
   mailchimp: {
     apiKey: Env.get('MAILCHIMP_API_KEY'),
-    defaultList: Env.get('MAILCHIMP_DEFAULT_LIST')
+    defaultList: 'Tinker Kitchen Newsletter',
+    listIds: {
+      'Tinker Kitchen Newsletter': '1f55082a57',
+      'Tinker Kitchen Scholarships': 'e601d286b0'
+    }
   }
 }

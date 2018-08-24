@@ -127,5 +127,5 @@ type Mutation {
   forgot_password (email: String!): String
   update_password_by_token (token: String!, password: String!): String
 
-  mailing_list_signup (name: String, email: String!): String
+  mailing_list_signup (name: String, email: String!, list: String): String
 }
