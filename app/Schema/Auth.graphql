@@ -1,0 +1,41 @@
+#
+# Authentication & Users
+#
+
+type User {
+  id: Int
+  name: String!
+  email: String!
+  jwt: JWT
+  is_member: Boolean
+  membership_sub: Subscription
+}
+
+type JWT {
+  type: String!
+  token: String!
+  refreshToken: String
+}
+
+input ProfileInput {
+  name: String
+  email: String
+}
+
+#
+# Queries & Mutations
+#
+
+type Query {
+  me: User
+}
+
+type Mutation {
+  signup (name: String!, email: String!, password: String!): User
+  login (email: String!, password: String!): User
+  verify_email (token: String!): String
+  update_profile(profile: ProfileInput!): String
+  update_password (old_password: String!, password: String!): String
+  forgot_password (email: String!): String
+  update_password_by_token (token: String!, password: String!): String
+}

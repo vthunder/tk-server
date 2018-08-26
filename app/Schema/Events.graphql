@@ -1,0 +1,25 @@
+#
+# Events
+#
+
+type Event {
+  id: Int
+  title: String!
+  start: String!
+  end: String
+  duration: Float
+  all_day: Boolean
+  description: String
+  category: String
+  price: Int
+  member_price: Int
+}
+
+#
+# Queries & Mutations
+#
+
+type Query {
+  calendar_event(id: Int!): Event
+  calendar_events: [Event]
+}

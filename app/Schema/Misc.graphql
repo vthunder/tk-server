@@ -1,0 +1,11 @@
+#
+# Queries & Mutations
+#
+
+type Query {
+  ping: String
+}
+
+type Mutation {
+  mailing_list_signup (name: String, email: String!, list: String): String
+}

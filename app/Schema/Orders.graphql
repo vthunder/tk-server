@@ -1,0 +1,59 @@
+#
+# Payments & Orders
+#
+
+type CreditCard {
+  id: Int
+  brand: String
+  last_four: String
+  exp_month: String
+  exp_year: String
+}
+
+type Order {
+  id: Int
+  items: [OrderItem]
+  item_subtotal: Int
+  shipping: Int
+  handling: Int
+  tax: Int
+  adjustment: Int
+  total: Int
+  comment: String
+  created_at: String
+  updated_at: String
+}
+
+type OrderItem {
+  id: Int
+  order: Order
+  product: Product
+  qty: Int
+  created_at: String
+  updated_at: String
+}
+
+input OrderInput {
+  items: [OrderItemInput]
+  adjustment: Int
+  comment: String
+}
+
+input OrderItemInput {
+  product_id: Int
+  price: Int
+  is_member_price: Boolean
+  qty: Int
+}
+
+#
+# Queries & Mutations
+#
+
+type Query {
+  saved_cards: [CreditCard]
+}
+
+type Mutation {
+  new_order (order: OrderInput): String
+}

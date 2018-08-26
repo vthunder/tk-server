@@ -1,0 +1,45 @@
+#
+# Products
+#
+
+type Subscription {
+  id: Int
+  name: String
+  stripe_id: String
+  stripe_plan: String
+  qty: String
+  trial_ends_at: String
+  ends_at: String
+  created_at: String
+  updated_at: String
+}
+
+type Product {
+  id: Int
+  title: String
+  category: String
+  description: String
+  billing_description: String
+  price: Int
+  member_price: Int
+  bundled_units: Int
+  unit: String
+  is_subscription: Boolean
+  subscription_period: String
+  subscription_name: String
+  subscription_plan: String
+  created_at: String
+  updated_at: String
+  member_discount_available: Boolean
+  list_unit_price: String
+  member_unit_price: String
+}
+
+#
+# Queries & Mutations
+#
+
+type Query {
+  products: [Product]
+  membership_info(type: String): Product
+}
