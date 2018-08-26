@@ -25,6 +25,7 @@ const providers = [
   '@adonisjs/mail/providers/MailProvider',
   '@adonisjs/framework/providers/ViewProvider',
   path.join(__dirname, '..', 'providers', 'MailchimpProvider'),
+  path.join(__dirname, '..', 'providers', 'ApolloApiClient'),
 ]
 
 /*
@@ -39,6 +40,7 @@ const providers = [
 const aceProviders = [
   '@adonisjs/lucid/providers/MigrationsProvider',
   'adonis-acl/providers/CommandsProvider',
+  '@adonisjs/vow/providers/VowProvider',
 ]
 
 /*
