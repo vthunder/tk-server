@@ -5,6 +5,7 @@ const Mail = use('Mail')
 const User = exports = module.exports = {}
 
 User.created = async ({ user, token }) => {
+  if (user.email.endsWith('@example.com')) return;
   console.log('got event: user created: ' + user.email);
   await Mail.send('emails.user_created', { user, token }, (message) => {
     message
