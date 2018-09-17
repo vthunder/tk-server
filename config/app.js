@@ -193,5 +193,9 @@ module.exports = {
       filename: 'adonis.log',
       level: 'info'
     }
+  },
+
+  stripe: {
+    secretApiKey: Env.get('STRIPE_KEY')
   }
 }
