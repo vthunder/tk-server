@@ -1,0 +1,91 @@
+#
+# Customer Data
+#
+
+type Customer {
+  id: String
+  account_balance: Int
+  created: String
+  currency: String
+  default_source: String
+  delinquent: Boolean
+  description: String
+#  discount:
+  email: String
+  invoice_prefix: String
+  livemode: Boolean
+  metadata: [KeyValuePair]
+  sources: [Source]
+}
+
+type Subscription {
+  id: String
+  billing_cycle_anchor: String
+  cancel_at_period_end: Boolean
+  canceled_at: String
+  created: String
+  current_period_end: String
+  current_period_start: String
+  customer: String
+#  discount:
+  ended_at: String
+  livemode: Boolean
+  metadata: [KeyValuePair]
+  plan: Plan
+  quantity: Int
+  start: String
+  status: String
+  tax_percent: Int
+}
+
+type Order {
+  id: String
+  amount: Int
+  amount_returned: Int
+  charge: String
+  currency: String
+  customer: String
+  email: String
+  items: [OrderLineItem]
+  livemode: Boolean
+  metadata: [KeyValuePair]
+  status: String
+}
+
+type OrderLineItem {
+  amount: Int
+  currency: String
+  description: String
+  parent: String
+  quantity: Int
+  type: String
+}
+
+type Source {
+  id: String
+  brand: String
+  last4: String
+  exp_month: String
+  exp_year: String
+}
+
+#
+# Queries & Mutations
+#
+
+type Query {
+  customer: Customer
+  customer_payment_sources: [Source]
+  customer_subscriptions: [Subscription]
+  customer_orders: [Order]
+}
+
+type Mutation {
+  get_or_create_customer(source: String): Customer
+  update_customer(source: String): Customer
+  delete_customer: String
+  create_subscription(plans: [String]): Subscription
+  create_order(skus: [String]): Order
+  pay_order(order: String!, source: String): Order
+  list_orders: [Order]
+}

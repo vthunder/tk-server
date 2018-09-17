@@ -8,7 +8,8 @@ type User {
   email: String!
   jwt: JWT
   is_member: Boolean
-  membership_sub: Subscription
+  has_stripe_customer: Boolean
+#  membership_sub: Subscription
 }
 
 type JWT {

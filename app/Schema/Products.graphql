@@ -2,37 +2,53 @@
 # Products
 #
 
-type Subscription {
-  id: Int
+type Product {
+  id: String
+  active: Boolean
+  attributes: [String]
+  caption: String
+  description: String
+  livemode: Boolean
+  metadata: [KeyValuePair]
   name: String
-  stripe_id: String
-  stripe_plan: String
-  qty: String
-  trial_ends_at: String
-  ends_at: String
-  created_at: String
-  updated_at: String
+  type: String
+  url: String
 }
 
-type Product {
-  id: Int
-  title: String
-  category: String
-  description: String
-  billing_description: String
+type Plan {
+  id: String
+  active: Boolean
+  amount: Int
+  currency: String
+  interval: String
+  interval_count: Int
+  livemode: Boolean
+  metadata: [KeyValuePair]
+  nickname: String
+  product: String
+}
+
+type SKU {
+  id: String
+  active: Boolean
+  attributes: [KeyValuePair]
+  currency: String
+  inventory: InventoryInfo
+  livemode: Boolean
+  metadata: [KeyValuePair]
   price: Int
-  member_price: Int
-  bundled_units: Int
-  unit: String
-  is_subscription: Boolean
-  subscription_period: String
-  subscription_name: String
-  subscription_plan: String
-  created_at: String
-  updated_at: String
-  member_discount_available: Boolean
-  list_unit_price: String
-  member_unit_price: String
+  product: String
+}
+
+type InventoryInfo {
+  quantity: Int
+  type: String
+  value: String
+}
+
+type KeyValuePair {
+  key: String
+  value: String
 }
 
 #
@@ -41,5 +57,9 @@ type Product {
 
 type Query {
   products: [Product]
-  membership_info(type: String): Product
+  plans(product: String): [Plan]
+  plan(product: String, nickname: String): Plan
+  skus(product: String): [SKU]
+
+#  membership_info(type: String): Product
 }
