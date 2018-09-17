@@ -9,6 +9,7 @@ class User extends Model {
     this.addHook('beforeSave', 'UserHook.hashPassword')
   }
 
+  // FIXME: currently unused
   static get dates () {
     return super.dates.concat(['last_member_check'])
   }
@@ -53,6 +54,13 @@ class User extends Model {
 
   async getIsMember() {
     if (this.stripe_id) {
+      // FIXME: currently unused
+      // if (!user.last_member_check ||
+      //     Date.now() - user.last_member_check > 3600) {
+      //   user.last_member_check = Date.now()
+      //   await user.save()
+      // }
+
       let customer = await Stripe.customers.retrieve(this.stripe_id)
       if (customer &&
           customer.subscriptions &&
