@@ -1,6 +1,7 @@
 'use strict'
 
 const Model = use('Model')
+const Stripe = use('TK/Stripe')
 
 class User extends Model {
   static boot () {
@@ -8,8 +9,19 @@ class User extends Model {
     this.addHook('beforeSave', 'UserHook.hashPassword')
   }
 
+  static get dates () {
+    return super.dates.concat(['last_member_check'])
+  }
+
   static get computed() {
-    return ['is_member', 'membership_sub']
+    return ['has_stripe_customer', 'is_member']
+  }
+
+  static get traits() {
+    return [
+      '@provider:Adonis/Acl/HasRole',
+      '@provider:Adonis/Acl/HasPermission'
+    ]
   }
 
   /**
@@ -34,30 +46,39 @@ class User extends Model {
     return this.hasMany('App/Models/Subscription')
   }
 
-  creditCards () {
-    return this.hasMany('App/Models/CreditCard')
-  }
-
-  getIsMember() {
-    if (this.getMembershipSub()) return true
+  async getHasStripeCustomer() {
+    if (this.stripe_id) return true
     return false
   }
 
-  async getMembershipSub() {
-    let sub
-    await this.subscriptions().forEach((s) => {
-      if (s.name === 'membership') {
-        sub = s
+  async getIsMember() {
+    if (this.stripe_id) {
+      let customer = await Stripe.customers.retrieve(this.stripe_id)
+      if (customer &&
+          customer.subscriptions &&
+          customer.subscriptions.data &&
+          customer.subscriptions.data.length > 0) {
+        for (let sub of customer.subscriptions.data) {
+          if (sub.plan.nickname === 'Monthly membership' ||
+              sub.plan.nickname === 'Yearly membership') {
+            return true
+          }
+        }
       }
-    })
-    return sub
+    }
+    return false
   }
 
-  static get traits() {
-    return [
-      '@provider:Adonis/Acl/HasRole',
-      '@provider:Adonis/Acl/HasPermission'
-    ]
+  // FIXME: these are currently unused
+
+  async updateStripeSource(token) {
+    if (!this.stripe_id) throw 'No Stripe ID set for this user'
+    await Stripe.customers.update(this.stripe_id, { source: token })
+  }
+
+  async addStripeSource(token) {
+    if (!this.stripe_id) throw 'No Stripe ID set for this user'
+    await Stripe.customers.createSource(this.stripe_id, { source: token })
   }
 }
 
