@@ -24,8 +24,9 @@ const providers = [
   '@adonisjs/validator/providers/ValidatorProvider',
   '@adonisjs/mail/providers/MailProvider',
   '@adonisjs/framework/providers/ViewProvider',
-  path.join(__dirname, '..', 'providers', 'MailchimpProvider'),
   path.join(__dirname, '..', 'providers', 'ApolloApiClient'),
+  path.join(__dirname, '..', 'providers', 'MailchimpProvider'),
+  path.join(__dirname, '..', 'providers', 'StripeProvider'),
 ]
 
 /*
