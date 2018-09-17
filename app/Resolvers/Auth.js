@@ -1,16 +1,6 @@
 const Persona = use('Persona')
 const GraphQLError = use('Adonis/Addons/GraphQLError')
 
-const CalendarEvent = use('App/Models/CalendarEvent')
-const Category = use('App/Models/Category')
-const CreditCard = use('App/Models/CreditCard')
-const Order = use('App/Models/Order')
-const OrderItem = use('App/Models/OrderItem')
-const Product = use('App/Models/Product')
-const Subscription = use('App/Models/Subscription')
-const Token = use('App/Models/Token')
-const User = use('App/Models/User')
-
 // note: auth.getUser() implicitly checks Authorization header, throws otherwise
 
 module.exports = {
