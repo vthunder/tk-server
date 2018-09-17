@@ -90,6 +90,31 @@ class ApolloApiClient extends ServiceProvider {
           })
           const store = use('TK/AuthTokenStore')
           store.token = ret.data.signup.jwt.token
+        },
+        signIn: async (email, password) => {
+          const apollo = use('TK/ApolloApiClient')
+          const ret = await apollo.mutate({
+            mutation: gql`
+          mutation Login($email: String!, $password: String!) {
+            login(email: $email, password: $password) {
+              id
+              name
+              email
+              jwt {
+                type
+                token
+                refreshToken
+              }
+            }
+          }
+        `,
+            variables: {
+              email,
+              password
+            }
+          })
+          const store = use('TK/AuthTokenStore')
+          store.token = ret.data.login.jwt.token
         }
       }
     })

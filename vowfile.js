@@ -20,7 +20,7 @@ module.exports = (cli, runner) => {
     await ace.call('migration:refresh')
     await ace.call('seed')
     Mail.fake()
-    await use('TK/AuthUtils').createUserAndSignIn('dan@example.com')
+    await use('TK/AuthUtils').signIn('dan@example.com', 'asdf1234')
     Mail.clear()
     Mail.restore()
   })
@@ -28,6 +28,6 @@ module.exports = (cli, runner) => {
   runner.after(async () => {
     // Shutdown server and roll back migrations
     use('Adonis/Src/Server').getInstance().close()
-    await ace.call('migration:reset')
+    // await ace.call('migration:reset')
   })
 }
