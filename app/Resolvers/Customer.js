@@ -51,21 +51,23 @@ module.exports = {
       const user = await auth.getUser()
       let customer
 
-      const customers = await Stripe.customers.list({ email: user.email, limit: 1 })
-      if (customers.data.length > 0) {
-        console.warn(`Warning: user email found on existing Stripe customer record: ${user.email}`)
-        if (source) {
-          customer = await Stripe.customers.update(customers.data[0].id, { source })
-        } else {
-          customer = customers.data[0]
-        }
-
+      if (user.stripe_id) {
+        customer = await Stripe.customers.retrieve(user.stripe_id)
       } else {
-        customer = await Stripe.customers.create({
-          email: user.email,
-          description: user.email,
-          source,
-        })
+        const customers = await Stripe.customers.list({ email: user.email, limit: 1 })
+        if (customers.data.length > 0) {
+          console.warn(`Warning: existing Stripe customer has email: ${user.email}`)
+          customer = customers.data[0]
+          if (source) {
+            customer = await Stripe.customers.update(customers.data[0].id, { source })
+          }
+        } else {
+          customer = await Stripe.customers.create({
+            email: user.email,
+            description: user.email,
+            source,
+          })
+        }
       }
 
       user.stripe_id = customer.id
