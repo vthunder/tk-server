@@ -54,6 +54,13 @@ type KeyValuePair {
   value: String
 }
 
+type Pass {
+  token: String
+  type: String
+  order_id: String
+  status: String
+}
+
 #
 # Queries & Mutations
 #
@@ -63,6 +70,8 @@ type Query {
   plans(product: String): [Plan]
   plan(product: String, nickname: String): Plan
   skus(product: String): [SKU]
+
+  user_passes: [Pass]
 
 #  membership_info(type: String): Product
 }
