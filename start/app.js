@@ -27,6 +27,7 @@ const providers = [
   path.join(__dirname, '..', 'providers', 'ApolloApiClient'),
   path.join(__dirname, '..', 'providers', 'MailchimpProvider'),
   path.join(__dirname, '..', 'providers', 'StripeProvider'),
+  path.join(__dirname, '..', 'providers', 'TokenProvider'),
 ]
 
 /*

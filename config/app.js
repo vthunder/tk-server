@@ -197,5 +197,11 @@ module.exports = {
 
   stripe: {
     secretApiKey: Env.get('STRIPE_KEY')
-  }
+  },
+
+  daypass: {
+    tokenChars: '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ',
+    tokenLength: 16,
+    tokenMask: 'AAAA-AAAA-AAAA-AAAA',
+  },
 }
