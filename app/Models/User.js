@@ -1,5 +1,6 @@
 'use strict'
 
+const moment = use('moment')
 const Model = use('Model')
 const Stripe = use('TK/Stripe')
 
@@ -15,7 +16,7 @@ class User extends Model {
   }
 
   static get computed() {
-    return ['has_stripe_customer', 'is_member']
+    return ['has_stripe_customer']
   }
 
   static get traits() {
@@ -39,12 +40,8 @@ class User extends Model {
     return this.hasMany('App/Models/Token')
   }
 
-  orders () {
-    return this.hasMany('App/Models/Order')
-  }
-
-  subscriptions () {
-    return this.hasMany('App/Models/Subscription')
+  passes () {
+    return this.hasMany('App/Models/Pass')
   }
 
   async getHasStripeCustomer() {
@@ -52,29 +49,29 @@ class User extends Model {
     return false
   }
 
-  async getIsMember() {
-    if (this.stripe_id) {
-      // FIXME: currently unused
-      // if (!user.last_member_check ||
-      //     Date.now() - user.last_member_check > 3600) {
-      //   user.last_member_check = Date.now()
-      //   await user.save()
-      // }
+  async member_check() {
+    const ts = moment(this.last_member_check)
+    const now = moment(Date.now())
 
+    if (this.last_member_check && ts.add(12, 'hours').isAfter(now)) {
+      return;
+    }
+
+    this.last_member_check = now.format("YYYY-MM-DD HH:mm:ss")
+    this.is_member = false
+
+    if (this.stripe_id) {
       let customer = await Stripe.customers.retrieve(this.stripe_id)
       if (customer &&
           customer.subscriptions &&
           customer.subscriptions.data &&
           customer.subscriptions.data.length > 0) {
-        for (let sub of customer.subscriptions.data) {
-          if (sub.plan.nickname === 'Monthly membership' ||
-              sub.plan.nickname === 'Yearly membership') {
-            return true
-          }
-        }
+        const subs = customer.subscriptions.data
+          .filter(s => s.plan.nickname.match(/(Monthly|Yearly) membership/))
+        if (subs.length) this.is_member = true
       }
     }
-    return false
+    await this.save()
   }
 
   // FIXME: these are currently unused

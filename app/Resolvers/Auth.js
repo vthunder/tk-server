@@ -6,7 +6,9 @@ const GraphQLError = use('Adonis/Addons/GraphQLError')
 module.exports = {
   Query: {
     me: async (_, args, { auth }) => {
-      return await auth.getUser()
+      const user = await auth.getUser()
+      await user.member_check()
+      return user
     },
   },
   Mutation: {
