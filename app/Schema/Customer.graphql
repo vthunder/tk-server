@@ -50,6 +50,7 @@ type Order {
   livemode: Boolean
   metadata: [KeyValuePair]
   status: String
+  created: String
 }
 
 type OrderLineItem {
@@ -69,6 +70,166 @@ type Source {
   exp_year: String
 }
 
+type Charge {
+  id: String
+  object: String
+  amount: Int
+  amount_refunded: Int
+  application: String
+  application_fee: String
+  balance_transaction: String
+  captured: Boolean
+  created: String
+  currency: String
+  customer: String
+  description: String
+  destination: String
+  dispute: String
+  failure_code: String
+  failure_message: String
+  invoice: Invoice
+  livemode: Boolean
+  metadata: [KeyValuePair]
+  on_behalf_of: String
+  order: Order
+  outcome: ChargeOutcome
+  paid: Boolean
+  payment_intent: String
+  receipt_email: String
+  receipt_number: String
+  refunded: Boolean
+  review: String
+  source: Source
+}
+
+type ChargeOutcome {
+  network_status: String
+  reason: String
+  risk_level: String
+  risk_score: Int
+  rule: String
+  seller_message: String
+  type: String
+}
+
+type Invoice {
+  id: String
+  object: String
+  amount_due: Int
+  amount_paid: Int
+  amount_remaining: Int
+  application_fee: Int
+  attempt_count: Int
+  attempted: Boolean
+  auto_advance: Boolean
+  billing: String
+  billing_reason: String
+  charge: String
+  closed: Boolean
+  currency: String
+  customer: String
+  date: String
+  description: String
+  discount: Discount
+  due_date: String
+  ending_balance: Int
+  forgiven: Boolean
+  hosted_invoice_url: String
+  invoice_pdf: String
+  lines: [InvoiceLine]
+  livemode: Boolean
+  metadata: [KeyValuePair]
+  next_payment_attempt: String
+  number: String
+  paid: Boolean
+  period_end: String
+  period_start: String
+  receipt_number: String
+  starting_balance: Int
+  statement_descriptor: String
+  subscription: String
+  subtotal: Int
+  tax: Int
+  tax_percent: Float
+  total: Int
+  webhooks_delivered_at: String
+}
+
+type Discount {
+  object: String
+  coupon: Coupon
+  customer: String
+  end: String
+  start: String
+  subscription: String
+}
+
+type Coupon {
+  id: String
+  object: String
+  amount_off: Int
+  created: String
+  currency: String
+  duration: String
+  duration_in_months: Int
+  livemode: Boolean
+  max_redemptions: Int
+  metadata: [KeyValuePair]
+  name: String
+  percent_off: Float
+  redeem_by: String
+  times_redeemed: Int
+  valid: Boolean
+}
+
+type InvoiceLine {
+  id: String
+  object: String
+  amount: Int
+  currency: String
+  description: String
+  discountable: Boolean
+  livemode: Boolean
+  metadata: [KeyValuePair]
+  period: InvoicePeriod
+  plan: Plan
+  proration: Boolean
+  quantity: Int
+  subscription: String
+  subscription_item: String
+  type: String
+}
+
+type InvoicePeriod {
+  end: String
+  start: String
+}
+
+type BalanceTransaction {
+  id: String
+  object: String
+  amount: Int
+  available_on: String
+  created: String
+  currency: String
+  description: String
+  exchange_rate: Float
+  fee: Int
+  fee_details: [FeeDetails]
+  net: Int
+  source: String
+  status: String
+  type: String
+}
+
+type FeeDetails {
+  amount: Int
+  application: String
+  currency: String
+  description: String
+  type: String
+}
+
 #
 # Queries & Mutations
 #
@@ -78,6 +239,7 @@ type Query {
   customer_payment_sources: [Source]
   customer_subscriptions: [Subscription]
   customer_orders: [Order]
+  customer_charges: [Charge]
 }
 
 type Mutation {
@@ -87,5 +249,4 @@ type Mutation {
   create_subscription(plans: [String]): Subscription
   create_order(skus: [String]): Order
   pay_order(order: String!, source: String): Order
-  list_orders: [Order]
 }
