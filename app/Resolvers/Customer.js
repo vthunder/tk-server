@@ -1,6 +1,9 @@
+const _ = use('lodash')
+const Config = use('Adonis/Src/Config')
 const GraphQLError = use('Adonis/Addons/GraphQLError')
 const Stripe = use('TK/Stripe')
-const _ = use('lodash')
+const Token = use('TK/Token')
+const Pass = use('App/Models/Pass')
 
 // note: auth.getUser() implicitly checks Authorization header, throws otherwise
 
@@ -43,7 +46,16 @@ module.exports = {
     },
     customer_orders: async (_, args, { auth }) => {
       const user = await auth.getUser()
-      return await Stripe.orders.retrieve(user.stripe_id)
+      const orders = await Stripe.orders.list({ customer: user.stripe_id })
+      return keyValMapArray(orders.data, ['metadata'])
+    },
+    customer_charges: async (_, args, { auth }) => {
+      const user = await auth.getUser()
+      const charges = await Stripe.charges.list({
+        customer: user.stripe_id,
+        expand: ['data.invoice', 'data.order'],
+      })
+      return keyValMapArray(charges.data, ['metadata'])
     },
   },
   Mutation: {
@@ -100,12 +112,18 @@ module.exports = {
     },
     create_subscription: async (_, { plans }, { auth }) => {
       const user = await auth.getUser()
+
+      user.last_member_check = '1970-01-01 00:00:00' // force refetch on next pageload
+      await user.save()
+
       const sub = await Stripe.subscriptions.create({
         customer: user.stripe_id,
         items: plans.map(p => ({ plan: p }))
       })
+
       sub.metadata = keyValMap(sub.metadata)
       sub.plan.metadata = keyValMap(sub.plan.metadata)
+
       return sub
     },
     create_order: async (_, { skus }, { auth }) => {
@@ -131,13 +149,35 @@ module.exports = {
         orderObj = await Stripe.orders.pay(order, { source })
       }
 
+      if (orderObj.status === 'paid') {
+        orderObj.items
+          .filter(i => i.type === 'sku')
+          .forEach(async (i) => {
+            const skuObj = await Stripe.skus.retrieve(i.parent)
+
+            let units = 1
+            if (skuObj.attributes && skuObj.attributes['bundled-units']) {
+              units = skuObj.attributes['bundled-units']
+            }
+
+            const prodObj = await Stripe.products.retrieve(skuObj.product)
+            if (prodObj.name === 'Day pass') {
+              for (let n = 0; n < units; n++) {
+                await Pass.create({
+                  token: Token.generate(),
+                  order_id: orderObj.id,
+                  user_id: user.id,
+                })
+              }
+            } else {
+              console.log(`Unknown product: "${prodObj.name}", needs to be tracked!`)
+            }
+          });
+      }
+
       orderObj.metadata = keyValMap(orderObj.metadata)
 
       return orderObj
-    },
-    list_orders: async (_, args, { auth }) => {
-      const user = await auth.getUser()
-      return (await Stripe.orders.list({ customer: this.stripe_id })).data
     },
   },
 }
