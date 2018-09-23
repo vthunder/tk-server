@@ -1,5 +1,6 @@
 const GraphQLError = use('Adonis/Addons/GraphQLError')
 const Stripe = use('TK/Stripe')
+const Pass = use('App/Models/Pass')
 
 // note: auth.getUser() implicitly checks Authorization header, throws otherwise
 
@@ -35,6 +36,11 @@ module.exports = {
     skus: async (_, { product }, { auth }) => {
       const skus = await Stripe.skus.list({ product })
       return keyValMapArray(skus.data, ['attributes', 'metadata'])
+    },
+    user_passes: async (_, args, { auth }) => {
+      const user = await auth.getUser()
+      const passes = await user.passes().fetch()
+      return passes.toJSON()
     },
   },
   Mutation: {
