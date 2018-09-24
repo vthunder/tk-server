@@ -55,6 +55,7 @@ type Order {
 
 type OrderLineItem {
   amount: Int
+  attributes: [KeyValuePair]
   currency: String
   description: String
   parent: String

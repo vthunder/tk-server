@@ -21,6 +21,30 @@ function keyValMap(object) {
   return Object.keys(object).map(k => ({ key: k, value: object[k] }))
 }
 
+// 1. Copy parent attributes to sku order items
+// 2. Ensure parent is always a string (as per graphql schema)
+// 3. Remove wrapper object around invoice line items
+function fixChargeItems(array) {
+  let ret = []
+  for (let obj of array) {
+    const invoiceData = _.get(obj, 'invoice.lines.data')
+    if (invoiceData) _.set(obj, 'invoice.lines', invoiceData)
+
+    if (obj.order && obj.order.items) {
+      let items = []
+      for (let item of obj.order.items) {
+        item.attributes = keyValMap(_.get(item, 'parent.attributes', {}));
+        item.parent = _.get(item, 'parent.id');
+        items.push(item)
+      }
+      obj.order.items = items
+    }
+
+    ret.push(obj)
+  }
+  return ret
+}
+
 module.exports = {
   Query: {
     customer: async (_, args, { auth }) => {
@@ -51,11 +75,15 @@ module.exports = {
     },
     customer_charges: async (_, args, { auth }) => {
       const user = await auth.getUser()
-      const charges = await Stripe.charges.list({
+      let charges = await Stripe.charges.list({
         customer: user.stripe_id,
-        expand: ['data.invoice', 'data.order'],
+        expand: ['data.invoice', 'data.order', 'data.order.items.parent'],
       })
-      return keyValMapArray(charges.data, ['metadata'])
+
+      charges = keyValMapArray(charges.data, ['metadata'])
+      charges = fixChargeItems(charges)
+
+      return charges
     },
   },
   Mutation: {
