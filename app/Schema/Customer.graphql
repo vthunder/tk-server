@@ -10,7 +10,7 @@ type Customer {
   default_source: String
   delinquent: Boolean
   description: String
-#  discount:
+  discount: Discount
   email: String
   invoice_prefix: String
   livemode: Boolean
@@ -27,7 +27,7 @@ type Subscription {
   current_period_end: String
   current_period_start: String
   customer: String
-#  discount:
+  discount: Discount
   ended_at: String
   livemode: Boolean
   metadata: [KeyValuePair]
