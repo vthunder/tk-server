@@ -13,6 +13,8 @@ type Event {
   category: String
   price: Int
   member_price: Int
+  sku: SKU
+  member_sku: SKU
 }
 
 #
