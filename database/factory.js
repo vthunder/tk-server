@@ -29,9 +29,6 @@ Factory.blueprint('App/Models/CalendarEvent', (faker) => {
   const start = startDay.format('YYYY-MM-DD HH:mm:ss');
   const duration = faker.integer({ min: 1, max: 4 });
 
-  const price = faker.integer({ min: 0, max: 5 }) * 2500;
-  const member_price = Math.floor(Math.abs(price - 2500), 0);
-
   return {
     title: faker.sentence({ words: 4 }),
     is_all_day: faker.bool({ likelihood: 30 }),
@@ -39,8 +36,8 @@ Factory.blueprint('App/Models/CalendarEvent', (faker) => {
     duration,
     description: faker.paragraph(),
     category: faker.pickone(['class', 'meetup', 'talk', 'private']),
-    price,
-    member_price,
+    sku_id: 'sku_DjaxIRazOp3agh',
+    member_sku_id: 'sku_DjbEtpUSnstoeS',
   };
 });
 /*
