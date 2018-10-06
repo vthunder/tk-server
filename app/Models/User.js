@@ -44,34 +44,38 @@ class User extends Model {
     return this.hasMany('App/Models/Pass')
   }
 
-  async getHasStripeCustomer() {
+  getHasStripeCustomer() {
     if (this.stripe_id) return true
     return false
   }
 
   async member_check() {
-    const ts = moment(this.last_member_check)
-    const now = moment(Date.now())
+    try {
+      const ts = moment(this.last_member_check)
+      const now = moment(Date.now())
 
-    if (this.last_member_check && ts.add(12, 'hours').isAfter(now)) {
-      return;
-    }
-
-    this.last_member_check = now.format("YYYY-MM-DD HH:mm:ss")
-    this.is_member = false
-
-    if (this.stripe_id) {
-      let customer = await Stripe.customers.retrieve(this.stripe_id)
-      if (customer &&
-          customer.subscriptions &&
-          customer.subscriptions.data &&
-          customer.subscriptions.data.length > 0) {
-        const subs = customer.subscriptions.data
-          .filter(s => s.plan.nickname.match(/(Monthly|Yearly) membership/))
-        if (subs.length) this.is_member = true
+      if (this.last_member_check && ts.add(12, 'hours').isAfter(now)) {
+        return;
       }
+
+      this.last_member_check = now.format("YYYY-MM-DD HH:mm:ss")
+      this.is_member = false
+
+      if (this.stripe_id) {
+        let customer = await Stripe.customers.retrieve(this.stripe_id)
+        if (customer &&
+            customer.subscriptions &&
+            customer.subscriptions.data &&
+            customer.subscriptions.data.length > 0) {
+          const subs = customer.subscriptions.data
+                .filter(s => s.plan.nickname.match(/(Monthly|Yearly) membership/))
+          if (subs.length) this.is_member = true
+        }
+      }
+      await this.save()
+    } catch (e) {
+      console.log(`Error checking member status from Stripe: ${e}`)
     }
-    await this.save()
   }
 
   // FIXME: these are currently unused
