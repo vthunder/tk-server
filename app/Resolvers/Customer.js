@@ -1,25 +1,12 @@
 const _ = use('lodash')
 const Config = use('Adonis/Src/Config')
 const GraphQLError = use('Adonis/Addons/GraphQLError')
+const Pass = use('App/Models/Pass')
 const Stripe = use('TK/Stripe')
 const Token = use('TK/Token')
-const Pass = use('App/Models/Pass')
+const KV = use('TK/KeyVal')
 
 // note: auth.getUser() implicitly checks Authorization header, throws otherwise
-
-function keyValMapArray(array, attributes) {
-  let ret = []
-  for (let obj of array) {
-    for (let attr of attributes) {
-      _.set(obj, attr, keyValMap(_.get(obj, attr)))
-    }
-    ret.push(obj)
-  }
-  return ret
-}
-function keyValMap(object) {
-  return Object.keys(object).map(k => ({ key: k, value: object[k] }))
-}
 
 // 1. Copy parent attributes to sku order items
 // 2. Ensure parent is always a string (as per graphql schema)
@@ -33,7 +20,7 @@ function fixChargeItems(array) {
     if (obj.order && obj.order.items) {
       let items = []
       for (let item of obj.order.items) {
-        item.attributes = keyValMap(_.get(item, 'parent.attributes', {}));
+        item.attributes = KV.mapField(_.get(item, 'parent.attributes', {}));
         item.parent = _.get(item, 'parent.id');
         items.push(item)
       }
@@ -50,9 +37,9 @@ module.exports = {
     customer: async (_, args, { auth }) => {
       const user = await auth.getUser()
       let customer = await Stripe.customers.retrieve(user.stripe_id)
-      customer.metadata = keyValMap(customer.metadata)
+      customer.metadata = KV.mapField(customer.metadata)
       customer.sources = customer.sources.data.map(s => {
-        s.metadata = keyValMap(s.metadata)
+        s.metadata = KV.mapField(s.metadata)
         return s
       })
       return customer
@@ -66,12 +53,12 @@ module.exports = {
     customer_subscriptions: async (_, args, { auth }) => {
       const user = await auth.getUser()
       const subs = await Stripe.subscriptions.list({ customer: user.stripe_id })
-      return keyValMapArray(subs.data, ['metadata', 'plan.metadata'])
+      return KV.mapArray(subs.data, ['metadata', 'plan.metadata'])
     },
     customer_orders: async (_, args, { auth }) => {
       const user = await auth.getUser()
       const orders = await Stripe.orders.list({ customer: user.stripe_id })
-      return keyValMapArray(orders.data, ['metadata'])
+      return KV.mapArray(orders.data, ['metadata'])
     },
     customer_charges: async (_, args, { auth }) => {
       const user = await auth.getUser()
@@ -80,7 +67,7 @@ module.exports = {
         expand: ['data.invoice', 'data.order', 'data.order.items.parent'],
       })
 
-      charges = keyValMapArray(charges.data, ['metadata'])
+      charges = KV.mapArray(charges.data, ['metadata'])
       charges = fixChargeItems(charges)
 
       return charges
@@ -113,9 +100,9 @@ module.exports = {
       user.stripe_id = customer.id
       await user.save()
 
-      customer.metadata = keyValMap(customer.metadata)
+      customer.metadata = KV.mapField(customer.metadata)
       customer.sources = customer.sources.data.map(s => {
-        s.metadata = keyValMap(s.metadata)
+        s.metadata = KV.mapField(s.metadata)
         return s
       })
 
@@ -124,9 +111,9 @@ module.exports = {
     update_customer: async (_, { source }, { auth }) => {
       const user = await auth.getUser()
       const customer = await Stripe.customers.update(user.stripe_id, { source })
-      customer.metadata = keyValMap(customer.metadata)
+      customer.metadata = KV.mapField(customer.metadata)
       customer.sources = customer.sources.data.map(s => {
-        s.metadata = keyValMap(s.metadata)
+        s.metadata = KV.mapField(s.metadata)
         return s
       })
       return customer
@@ -149,8 +136,8 @@ module.exports = {
         items: plans.map(p => ({ plan: p }))
       })
 
-      sub.metadata = keyValMap(sub.metadata)
-      sub.plan.metadata = keyValMap(sub.plan.metadata)
+      sub.metadata = KV.mapField(sub.metadata)
+      sub.plan.metadata = KV.mapField(sub.plan.metadata)
 
       return sub
     },
@@ -161,7 +148,7 @@ module.exports = {
         currency: 'usd',
         items: skus.map(s => ({ parent: s }))
       })
-      order.metadata = keyValMap(order.metadata)
+      order.metadata = KV.mapField(order.metadata)
       return order
     },
     pay_order: async (_, { order, source }, { auth }) => {
@@ -203,7 +190,7 @@ module.exports = {
           });
       }
 
-      orderObj.metadata = keyValMap(orderObj.metadata)
+      orderObj.metadata = KV.mapField(orderObj.metadata)
 
       return orderObj
     },
