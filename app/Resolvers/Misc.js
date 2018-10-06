@@ -3,6 +3,7 @@ const Config = use('Adonis/Src/Config')
 const Mailchimp = use('TK/Mailchimp')
 const CalendarEvent = use('App/Models/CalendarEvent')
 const Product = use('App/Models/Product')
+const KV = use('TK/KeyVal')
 
 // note: auth.getUser() implicitly checks Authorization header, throws otherwise
 
@@ -15,7 +16,10 @@ module.exports = {
     },
     calendar_event: async (_, { id }) => {
       const event = await CalendarEvent.find(id);
-      return event.toJSON();
+      await event.fetch_skus()
+      const ret = await event.toJSON()
+      return KV.mapObject(ret, ['sku.attributes', 'sku.metadata',
+                                'member_sku.attributes', 'member_sku.metadata'])
     },
     calendar_events: async () => {
       const events = await CalendarEvent.all();
