@@ -7,8 +7,8 @@ module.exports = {
   Query: {
     me: async (_, args, { auth }) => {
       const user = await auth.getUser()
-      await user.member_check()
-      return user
+      await user.stripe_check()
+      return user.toJSON()
     },
   },
   Mutation: {
