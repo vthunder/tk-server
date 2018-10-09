@@ -11,6 +11,7 @@ class UserSchema extends Schema {
       table.string('password', 60).notNullable()
       table.string('account_status', 60)
       table.string('stripe_id').unique()
+      table.string('previous_stripe_ids').defaultTo('[]')
       table.bool('is_member').defaultTo(0)
       table.datetime('last_member_check')
       table.timestamps()

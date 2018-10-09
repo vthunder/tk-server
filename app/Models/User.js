@@ -16,7 +16,7 @@ class User extends Model {
   }
 
   static get computed() {
-    return ['has_stripe_customer']
+    return ['has_stripe_customer', 'has_previous_stripe_ids']
   }
 
   static get traits() {
@@ -49,33 +49,64 @@ class User extends Model {
     return false
   }
 
-  async member_check() {
-    try {
-      const ts = moment(this.last_member_check)
-      const now = moment(Date.now())
+  getHasPreviousStripeIds() {
+    if (JSON.parse(this.previous_stripe_ids).length > 0) return true
+    return false
+  }
 
-      if (this.last_member_check && ts.add(12, 'hours').isAfter(now)) {
-        return;
-      }
+  async stripe_check() {
+    const ts = moment(this.last_member_check)
+    const now = moment(Date.now())
 
-      this.last_member_check = now.format("YYYY-MM-DD HH:mm:ss")
-      this.is_member = false
-
-      if (this.stripe_id) {
-        let customer = await Stripe.customers.retrieve(this.stripe_id)
-        if (customer &&
-            customer.subscriptions &&
-            customer.subscriptions.data &&
-            customer.subscriptions.data.length > 0) {
-          const subs = customer.subscriptions.data
-                .filter(s => s.plan.nickname.match(/(Monthly|Yearly) membership/))
-          if (subs.length) this.is_member = true
-        }
-      }
-      await this.save()
-    } catch (e) {
-      console.log(`Error checking member status from Stripe: ${e}`)
+    if (this.last_member_check && ts.add(12, 'hours').isAfter(now)) {
+      return;
     }
+
+    await this.customer_check()
+    this.is_member = await this.member_check()
+    this.last_member_check = now.format("YYYY-MM-DD HH:mm:ss")
+
+    await this.save()
+  }
+
+  // check whether the customer has been deleted on the Stripe end,
+  // even though we have a local stripe_id saved
+  async customer_check() {
+    if (this.stripe_id) {
+      try {
+        let customer = await Stripe.customers.retrieve(this.stripe_id)
+        if (customer.deleted) {
+          await this.add_previous_stripe_id(this.stripe_id)
+          this.stripe_id = null
+          await this.save()
+        }
+      } catch (e) {
+        // Some other (perhaps transient network?) error, log but do nothing
+        console.log(e)
+      }
+    }
+  }
+
+  async member_check() {
+    if (this.stripe_id) {
+      try {
+        const subs = await Stripe.subscriptions.list({ customer: this.stripe_id })
+        if (subs.data.length > 0) {
+          const memberships = subs.data
+                .filter(s => s.plan.nickname.match(/(Monthly|Yearly) membership/))
+          if (memberships.length) return true
+        }
+      } catch (e) {
+        console.log(`Error fetching subscriptions for ${this.email}: ${e}`)
+      }
+    }
+    return false
+  }
+
+  async add_previous_stripe_id(id) {
+    const prev_ids = JSON.parse(this.previous_stripe_ids)
+    this.previous_stripe_ids = JSON.stringify(prev_ids.push(id))
+    await this.save()
   }
 
   // FIXME: these are currently unused
