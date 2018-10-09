@@ -1,6 +1,8 @@
 const GraphQLError = use('Adonis/Addons/GraphQLError')
 const Stripe = use('TK/Stripe')
 const Pass = use('App/Models/Pass')
+const KV = use('TK/KeyVal')
+const Config = use('Adonis/Src/Config')
 
 // note: auth.getUser() implicitly checks Authorization header, throws otherwise
 
@@ -36,6 +38,19 @@ module.exports = {
     skus: async (_, { product }, { auth }) => {
       const skus = await Stripe.skus.list({ product })
       return keyValMapArray(skus.data, ['attributes', 'metadata'])
+    },
+    day_pass_skus: async (_, args, { auth }) => {
+      async function get_sku(name) {
+        const id = Config.get(`app.daypass.sku.${name}`)
+        const sku = await Stripe.skus.retrieve(id)
+        return KV.mapObject(sku, ['attributes', 'metadata'])
+      }
+      return {
+        nonmember_1: get_sku('nonmember_1'),
+        nonmember_5: get_sku('nonmember_5'),
+        member_1: get_sku('member_1'),
+        member_5: get_sku('member_5'),
+      }
     },
     user_passes: async (_, args, { auth }) => {
       const user = await auth.getUser()

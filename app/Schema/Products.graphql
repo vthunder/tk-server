@@ -61,6 +61,13 @@ type Pass {
   status: String
 }
 
+type DayPassSKUs {
+  nonmember_1: SKU
+  nonmember_5: SKU
+  member_1: SKU
+  member_5: SKU
+}
+
 #
 # Queries & Mutations
 #
@@ -70,7 +77,7 @@ type Query {
   plans(product: String): [Plan]
   plan(product: String, nickname: String): Plan
   skus(product: String): [SKU]
-
+  day_pass_skus: DayPassSKUs
   user_passes: [Pass]
 
 #  membership_info(type: String): Product
