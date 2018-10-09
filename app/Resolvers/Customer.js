@@ -85,9 +85,6 @@ module.exports = {
         if (customers.data.length > 0) {
           console.warn(`Warning: existing Stripe customer has email: ${user.email}`)
           customer = customers.data[0]
-          if (source) {
-            customer = await Stripe.customers.update(customers.data[0].id, { source })
-          }
         } else {
           customer = await Stripe.customers.create({
             email: user.email,
@@ -95,6 +92,10 @@ module.exports = {
             source,
           })
         }
+      }
+
+      if (source) {
+        customer = await Stripe.customers.update(customer.id, { source })
       }
 
       user.stripe_id = customer.id
