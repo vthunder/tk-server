@@ -203,5 +203,11 @@ module.exports = {
     tokenChars: '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ',
     tokenLength: 16,
     tokenMask: 'AAAA-AAAA-AAAA-AAAA',
+    sku: {
+      nonmember_1: Env.get('SKU_DAYPASS_NONMEMBER_1'),
+      nonmember_5: Env.get('SKU_DAYPASS_NONMEMBER_5'),
+      member_1: Env.get('SKU_DAYPASS_MEMBER_1'),
+      member_5: Env.get('SKU_DAYPASS_MEMBER_5'),
+    },
   },
 }
