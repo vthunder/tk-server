@@ -35,7 +35,7 @@ test('query: products', async ({ assert }) => {
       assert.isOk(p.active)
       assert.isOk(p.name)
       if (p.type === 'good') {
-        assert.isAtLeast(p.attributes.length, 2)
+        assert.isAtLeast(p.attributes.length, 1)
         assert.isOk(p.caption)
         assert.isOk(p.description)
       } else if (p.type === 'service') {
