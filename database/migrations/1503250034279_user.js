@@ -14,6 +14,8 @@ class UserSchema extends Schema {
       table.string('previous_stripe_ids').defaultTo('[]')
       table.bool('is_member').defaultTo(0)
       table.datetime('last_member_check')
+      table.date('free_membership_start')
+      table.date('free_membership_end')
       table.timestamps()
     })
   }

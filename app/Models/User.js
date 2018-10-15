@@ -88,6 +88,9 @@ class User extends Model {
   }
 
   async member_check() {
+    const now = moment()
+    if (now.isBetween(this.free_membership_start, this.free_membership_end)) return true
+
     if (this.stripe_id) {
       try {
         const subs = await Stripe.subscriptions.list({ customer: this.stripe_id })
