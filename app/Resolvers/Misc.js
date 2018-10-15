@@ -1,9 +1,12 @@
+const moment = use('moment')
 const GraphQLError = use('Adonis/Addons/GraphQLError')
 const Config = use('Adonis/Src/Config')
 const Mailchimp = use('TK/Mailchimp')
 const CalendarEvent = use('App/Models/CalendarEvent')
 const Product = use('App/Models/Product')
+const CouponToken = use('App/Models/CouponToken')
 const KV = use('TK/KeyVal')
+const Token = use('TK/Token')
 
 // note: auth.getUser() implicitly checks Authorization header, throws otherwise
 
@@ -38,6 +41,33 @@ module.exports = {
       } catch (e) {
         throw new GraphQLError(e.title);
       }
+      return 'OK'
+    },
+    create_coupon_token: async (_, { type }, { auth }) => {
+      const user = await auth.getUser()
+      if (!user.can('create_coupon_tokens')) return 'Permission denied'
+      if (!(type === 'monthly_member' || type === 'yearly_member')) return 'Bad coupon type'
+
+      const coupon = await CouponToken.create({
+        type,
+        token: Token.generate()
+      })
+      return coupon.token
+    },
+    use_membership_coupon: async (_, { token }, { auth }) => {
+      const user = await auth.getUser()
+      const coupon = await CouponToken.findBy('token', token)
+      if (!coupon) return 'Invalid coupon code'
+      if (coupon.status !== 'new') return 'Coupon already used'
+
+      user.free_membership_start = moment().format('YYYY-MM-DD')
+      user.free_membership_end = moment().add(1, 'months').add(1, 'days').format('YYYY-MM-DD')
+      await user.save()
+
+      coupon.status = 'used'
+      coupon.claimed_by = user.id
+      await coupon.save()
+
       return 'OK'
     },
   },
