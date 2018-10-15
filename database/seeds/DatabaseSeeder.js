@@ -42,6 +42,8 @@ class DatabaseSeeder {
     const permissions = [
       { name: 'Delete users', slug: 'delete_users',
         description: 'Delete any user and associated Stripe customer' },
+      { name: 'Create coupon tokens', slug: 'create_coupon_tokens',
+        description: 'Create a coupon token' },
     ]
     const permissionObjs = {}
 
@@ -57,13 +59,13 @@ class DatabaseSeeder {
         fields: { name: 'Administrator',
                   slug: 'administrator',
                   description: 'Super-user' },
-        permissions: ['delete_users']
+        permissions: ['delete_users', 'create_coupon_tokens']
       },
       {
         fields: { name: 'Manager',
                   slug: 'manager',
                   description: 'General staff' },
-        permissions: []
+        permissions: ['create_coupon_tokens']
       },
     ]
     const roleObjs = []
