@@ -1,4 +1,5 @@
 const _ = use('lodash')
+const moment = use('moment')
 const Config = use('Adonis/Src/Config')
 const GraphQLError = use('Adonis/Addons/GraphQLError')
 const Pass = use('App/Models/Pass')
@@ -132,7 +133,7 @@ module.exports = {
       user.last_member_check = '1970-01-01 00:00:00' // force refetch on next pageload
       await user.save()
 
-      let coupon
+      let coupon, trial_end
       if (code === 'KS_CONVERT') {
         if (plans[0] === Config.get('app.membership.plan.monthly')) {
           coupon = Config.get('app.membership.discount.backer_monthly')
@@ -141,12 +142,14 @@ module.exports = {
           coupon = Config.get('app.membership.discount.backer_yearly')
         }
         if (plans.length > 1) throw 'Cannot process more than one subscription at a time'
+        trial_end = moment(user.free_membership_end).format('X')
       }
 
       const sub = await Stripe.subscriptions.create({
         customer: user.stripe_id,
         items: plans.map(p => ({ plan: p })),
         coupon,
+        trial_end,
       })
 
       sub.metadata = KV.mapField(sub.metadata)
