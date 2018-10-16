@@ -247,7 +247,7 @@ type Mutation {
   get_or_create_customer(source: String): Customer
   update_customer(source: String): Customer
   delete_customer: String
-  create_subscription(plans: [String]): Subscription
+  create_subscription(plans: [String], code: String): Subscription
   create_order(skus: [String]): Order
   pay_order(order: String!, source: String): Order
 }

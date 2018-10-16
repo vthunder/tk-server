@@ -210,4 +210,14 @@ module.exports = {
       member_5: Env.get('SKU_DAYPASS_MEMBER_5'),
     },
   },
+  membership: {
+    plan: {
+      monthly: Env.get('MEMBERSHIP_PLAN_MONTHLY'),
+      yearly: Env.get('MEMBERSHIP_PLAN_YEARLY'),
+    },
+    discount: {
+      backer_monthly: Env.get('DISCOUNT_BACKER_MONTHLY'),
+      backer_yearly: Env.get('DISCOUNT_BACKER_YEARLY'),
+    },
+  },
 }
