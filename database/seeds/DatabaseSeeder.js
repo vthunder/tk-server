@@ -15,12 +15,14 @@ const Role = use('Role')
 const Permission = use('Permission')
 const User = use('App/Models/User')
 const Product = use('App/Models/Product')
+const CouponToken = use('App/Models/CouponToken')
 
 class DatabaseSeeder {
   async run () {
     await this._users()
     await this._permissionsAndRoles()
     await this._events()
+    await this._other()
   }
 
   async _users() {
@@ -88,6 +90,10 @@ class DatabaseSeeder {
     const eventsArray = await Factory
           .model('App/Models/CalendarEvent')
           .createMany(15);
+  }
+
+  async _other() {
+    CouponToken.create({ token: 'asdf' })
   }
 }
 
