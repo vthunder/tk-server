@@ -16,7 +16,8 @@ class User extends Model {
   }
 
   static get computed() {
-    return ['has_stripe_customer', 'has_previous_stripe_ids']
+    return ['has_stripe_customer', 'has_previous_stripe_ids',
+            'is_free_member', 'free_member_until', 'free_membership_type']
   }
 
   static get traits() {
@@ -87,10 +88,21 @@ class User extends Model {
     }
   }
 
-  async member_check() {
+  // for computed json properties
+  getIsFreeMember() { return this.has_free_membership() }
+  getFreeMemberUntil() { return moment(this.free_membership_end).format('X') }
+  getFreeMembershipType() {
+    if (!this.has_free_membership()) return ''
+    return this.free_membership_type
+  }
+
+  has_free_membership() {
     const now = moment()
     if (now.isBetween(this.free_membership_start, this.free_membership_end)) return true
+    return false
+  }
 
+  async member_check() {
     if (this.stripe_id) {
       try {
         const subs = await Stripe.subscriptions.list({ customer: this.stripe_id })

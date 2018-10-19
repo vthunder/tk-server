@@ -16,6 +16,7 @@ class UserSchema extends Schema {
       table.datetime('last_member_check')
       table.date('free_membership_start')
       table.date('free_membership_end')
+      table.string('free_membership_type').defaultTo('staff')
       table.timestamps()
     })
   }

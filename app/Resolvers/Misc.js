@@ -4,6 +4,7 @@ const Config = use('Adonis/Src/Config')
 const Mailchimp = use('TK/Mailchimp')
 const CalendarEvent = use('App/Models/CalendarEvent')
 const Product = use('App/Models/Product')
+const Pass = use('App/Models/Pass')
 const CouponToken = use('App/Models/CouponToken')
 const KV = use('TK/KeyVal')
 const Token = use('TK/Token')
@@ -62,7 +63,11 @@ module.exports = {
 
       user.free_membership_start = moment().format('YYYY-MM-DD')
       user.free_membership_end = moment().add(1, 'months').add(1, 'days').format('YYYY-MM-DD')
+      user.free_membership_type = coupon.type
       await user.save()
+
+      await Pass.create({ token: Token.generate(), user_id: user.id })
+      await Pass.create({ token: Token.generate(), user_id: user.id })
 
       coupon.status = 'used'
       coupon.claimed_by = user.id
