@@ -47,22 +47,25 @@ module.exports = {
     },
     customer_payment_sources: async (_, args, { auth }) => {
       const user = await auth.getUser()
-      if (!user.stripe_id) return null
+      if (!user.stripe_id) return []
       const ret = await Stripe.customers.retrieve(user.stripe_id)
       return ret.sources.data
     },
     customer_subscriptions: async (_, args, { auth }) => {
       const user = await auth.getUser()
+      if (!user.stripe_id) return []
       const subs = await Stripe.subscriptions.list({ customer: user.stripe_id })
       return KV.mapArray(subs.data, ['metadata', 'plan.metadata'])
     },
     customer_orders: async (_, args, { auth }) => {
       const user = await auth.getUser()
+      if (!user.stripe_id) return []
       const orders = await Stripe.orders.list({ customer: user.stripe_id })
       return KV.mapArray(orders.data, ['metadata'])
     },
     customer_charges: async (_, args, { auth }) => {
       const user = await auth.getUser()
+      if (!user.stripe_id) return []
       let charges = await Stripe.charges.list({
         customer: user.stripe_id,
         expand: ['data.invoice', 'data.order', 'data.order.items.parent'],
