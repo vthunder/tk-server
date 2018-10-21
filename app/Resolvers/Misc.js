@@ -47,7 +47,7 @@ module.exports = {
     create_coupon_token: async (_, { type }, { auth }) => {
       const user = await auth.getUser()
       if (!user.can('create_coupon_tokens')) return 'Permission denied'
-      if (!(type === 'monthly_member' || type === 'yearly_member')) return 'Bad coupon type'
+      if (!type.match(/(ks_month|ks_year|staff)/)) return 'Bad coupon type'
 
       const coupon = await CouponToken.create({
         type,
