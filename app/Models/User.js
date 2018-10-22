@@ -28,22 +28,26 @@ class User extends Model {
   }
 
   /**
-   * A relationship on tokens is required for auth to
-   * work. Since features like `refreshTokens` or
-   * `rememberToken` will be saved inside the
-   * tokens table.
    *
-   * @method tokens
+   * Relationships
    *
-   * @return {Object}
    */
+
+  // Auth tokens, for 'refreshTokens' & 'rememberToken' features
   tokens () {
     return this.hasMany('App/Models/Token')
   }
 
+  // Day passes
   passes () {
     return this.hasMany('App/Models/Pass')
   }
+
+  /**
+   *
+   * Getters/Setters
+   *
+   */
 
   getHasStripeCustomer() {
     if (this.stripe_id) return true
@@ -55,39 +59,6 @@ class User extends Model {
     return false
   }
 
-  async stripe_check() {
-    const ts = moment(this.last_member_check)
-    const now = moment(Date.now())
-
-    if (this.last_member_check && ts.add(12, 'hours').isAfter(now)) {
-      return;
-    }
-
-    await this.customer_check()
-    this.is_member = await this.member_check()
-    this.last_member_check = now.format("YYYY-MM-DD HH:mm:ss")
-
-    await this.save()
-  }
-
-  // check whether the customer has been deleted on the Stripe end,
-  // even though we have a local stripe_id saved
-  async customer_check() {
-    if (this.stripe_id) {
-      try {
-        let customer = await Stripe.customers.retrieve(this.stripe_id)
-        if (customer.deleted) {
-          await this.add_previous_stripe_id(this.stripe_id)
-          this.stripe_id = null
-          await this.save()
-        }
-      } catch (e) {
-        // Some other (perhaps transient network?) error, log but do nothing
-        console.log(e)
-      }
-    }
-  }
-
   // for computed json properties
   getIsFreeMember() { return this.has_free_membership() }
   getFreeMemberUntil() { return moment(this.free_membership_end).format('X') }
@@ -96,10 +67,31 @@ class User extends Model {
     return this.free_membership_type
   }
 
+  /**
+   *
+   * Other instance methods
+   *
+   */
+
   has_free_membership() {
     const now = moment()
     if (now.isBetween(this.free_membership_start, this.free_membership_end)) return true
     return false
+  }
+
+  async stripe_check() {
+    const ts = moment(this.last_member_check)
+    const now = moment(Date.now())
+
+    if (this.last_member_check && ts.add(12, 'hours').isAfter(now)) {
+      return;
+    }
+
+    await this.deleted_customer_check()
+    this.is_member = await this.member_check()
+    this.last_member_check = now.format("YYYY-MM-DD HH:mm:ss")
+
+    await this.save()
   }
 
   async member_check() {
@@ -118,22 +110,28 @@ class User extends Model {
     return false
   }
 
+  // check whether the customer has been deleted on the Stripe end,
+  // even though we have a local stripe_id saved
+  async deleted_customer_check() {
+    if (this.stripe_id) {
+      try {
+        let customer = await Stripe.customers.retrieve(this.stripe_id)
+        if (customer.deleted) {
+          await this.add_previous_stripe_id(this.stripe_id)
+          this.stripe_id = null
+          await this.save()
+        }
+      } catch (e) {
+        // Some other (perhaps transient network?) error, log but do nothing
+        console.log(e)
+      }
+    }
+  }
+
   async add_previous_stripe_id(id) {
     const prev_ids = JSON.parse(this.previous_stripe_ids)
     this.previous_stripe_ids = JSON.stringify(prev_ids.push(id))
     await this.save()
-  }
-
-  // FIXME: these are currently unused
-
-  async updateStripeSource(token) {
-    if (!this.stripe_id) throw 'No Stripe ID set for this user'
-    await Stripe.customers.update(this.stripe_id, { source: token })
-  }
-
-  async addStripeSource(token) {
-    if (!this.stripe_id) throw 'No Stripe ID set for this user'
-    await Stripe.customers.createSource(this.stripe_id, { source: token })
   }
 }
 
