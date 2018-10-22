@@ -7,7 +7,7 @@ class PassesSchema extends Schema {
     this.create('passes', (table) => {
       table.increments()
       table.string('token').unique()
-      table.string('type').defaultsTo('day_pass')
+      table.string('type').defaultsTo('day_pass') // or 'class'
       table.string('order_id') // Stripe object ID
       table.integer('user_id').unsigned().index()
       table.foreign('user_id').references('id').on('users').onDelete('cascade')

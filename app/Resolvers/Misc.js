@@ -55,19 +55,30 @@ module.exports = {
       })
       return coupon.token
     },
-    use_membership_coupon: async (_, { token }, { auth }) => {
+    use_coupon_token: async (_, { token }, { auth }) => {
       const user = await auth.getUser()
       const coupon = await CouponToken.findBy('token', token)
       if (!coupon) return 'Invalid coupon code'
       if (coupon.status !== 'new') return 'Coupon already used'
 
-      user.free_membership_start = moment().format('YYYY-MM-DD')
-      user.free_membership_end = moment().add(1, 'months').add(1, 'days').format('YYYY-MM-DD')
-      user.free_membership_type = coupon.type
-      await user.save()
+      // 1 month of membership
+      if (coupon.type.match(/(staff|ks_month)/)) {
+        await user.give_free_membership('month', coupon.type)
+      }
 
-      await Pass.create({ token: Token.generate(), user_id: user.id })
-      await Pass.create({ token: Token.generate(), user_id: user.id })
+      // 1 year of membership
+      if (coupon.type === 'ks_year') {
+        await user.give_free_membership('year', coupon.type)
+      }
+
+      // 1 class
+      if (coupon.type === 'ks_class') {
+        await user.passes().create({ token: Token.generate(), type: 'class' })
+      }
+
+      // 2 day passes (all coupon types including 'ks_daypasses')
+      await user.passes().create({ token: Token.generate() })
+      await user.passes().create({ token: Token.generate() })
 
       coupon.status = 'used'
       coupon.claimed_by = user.id
