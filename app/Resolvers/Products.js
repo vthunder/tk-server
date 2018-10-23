@@ -52,9 +52,10 @@ module.exports = {
         member_5: get_sku('member_5'),
       }
     },
-    user_passes: async (_, args, { auth }) => {
+    user_passes: async (_, { type }, { auth }) => {
       const user = await auth.getUser()
-      const passes = await user.passes().fetch()
+      const passes = await user.passes().where('type', type).fetch()
+      if (!passes) return []
       return passes.toJSON()
     },
   },
