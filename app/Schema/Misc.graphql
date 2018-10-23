@@ -8,6 +8,7 @@ type Query {
 
 type Mutation {
   mailing_list_signup (name: String, email: String!, list: String): String
-  create_coupon_token (type: String, count: Int): [String]
+  create_coupon_token (type: String!, count: Int): [String]
+  send_coupon_tokens (type: String!, emails: String!): String
   use_coupon_token (token: String!): String
 }
