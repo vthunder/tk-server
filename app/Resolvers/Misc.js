@@ -8,6 +8,7 @@ const Pass = use('App/Models/Pass')
 const CouponToken = use('App/Models/CouponToken')
 const KV = use('TK/KeyVal')
 const Token = use('TK/Token')
+const Mail = use('Mail')
 
 // note: auth.getUser() implicitly checks Authorization header, throws otherwise
 
@@ -57,6 +58,31 @@ module.exports = {
         })
         return coupon.token
       })
+    },
+    send_coupon_tokens: async (_, { type, emails }, { auth }) => {
+      const user = await auth.getUser()
+      if (!user.can('create_coupon_tokens')) return 'Permission denied'
+      if (!type.match(/(staff|ks_daypasses|ks_month|ks_year|ks_class)/))
+        return 'Bad coupon type'
+
+      emails.split(/[ ,]+/).map(async (email) => {
+        const coupon = await CouponToken.create({
+          type,
+          token: Token.generate()
+        })
+        if (type.match(/^ks_/)) {
+          await Mail.send('emails.coupon_ks', { token: coupon.token }, (message) => {
+            message
+              .to(email)
+              .from('hello@tinkerkitchen.org')
+              .subject('Your Tinker Kitchen reward is here!')
+          })
+          coupon.sent_to = email
+          await coupon.save()
+        }
+      })
+
+      return 'OK'
     },
     use_coupon_token: async (_, { token }, { auth }) => {
       const user = await auth.getUser()
