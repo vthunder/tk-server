@@ -24,7 +24,14 @@ User.passwordChanged = async ({ user }) => {
 }
 
 User.forgotPassword = async ({ user, token }) => {
+  if (user.email.endsWith('@example.com')) return;
   console.log('got event: user forgot password: ' + user.email);
+  await Mail.send('emails.user_forgot', { user, token }, (message) => {
+    message
+      .to(user.email)
+      .from('hello@tinkerkitchen.org')
+      .subject('Tinker Kitchen password reset')
+  })
 }
 
 User.passwordRecovered = async ({ user }) => {
