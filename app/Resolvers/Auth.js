@@ -25,30 +25,47 @@ module.exports = {
       return user
     },
     verify_email: async (obj, { token }, context) => {
-      await Persona.verifyEmail(token)
-      return 'OK'
+      try {
+        await Persona.verifyEmail(token)
+        return 'OK'
+      } catch (e) {
+        return 'Error'
+      }
     },
     update_profile: async (_, args, { auth }) => {
-      const user = auth.getUser()
+      const user = await auth.getUser()
       const profile = { name, email } = args.profile
       await Persona.updateProfile(user, profile)
       return 'OK'
     },
     update_password: async (_, { old_password, password }, { auth }) => {
-      const user = auth.getUser()
-      await Persona.updatePassword(user, { old_password, password,
-                                           password_confirmation: password })
+      const user = await auth.getUser()
+      try {
+        await Persona.updatePassword(user, { old_password, password,
+                                             password_confirmation: password })
+      } catch (e) {
+        console.log(e)
+        return e.messages[0].message
+      }
       return 'OK'
     },
     forgot_password: async (_, { email }) => {
-      await Persona.forgotPassword(email)
-      return 'OK'
+      try {
+        await Persona.forgotPassword(email)
+        return 'OK'
+      } catch (e) {
+        return 'Error'
+      }
     },
     update_password_by_token: async (_, { token, password }) => {
-      await Persona.updatePasswordByToken(token,
-                                          { password,
-                                            password_confirmation: password })
-      return 'OK'
+      try {
+        await Persona.updatePasswordByToken(token,
+                                            { password,
+                                              password_confirmation: password })
+        return 'OK'
+      } catch (e) {
+        return `Error: ${e}`
+      }
     },
   },
 }
