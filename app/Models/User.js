@@ -75,18 +75,20 @@ class User extends Model {
    */
 
   async give_free_membership(length, type) {
-    switch (length) {
-    case 'month':
+    if (!length.match(/^(month|year)$/)) throw 'Invalid free membership length'
+
+    this.free_membership_type = type
+    this.free_membership_start = moment().format('YYYY-MM-DD')
+
+    if (length === 'month') {
       this.free_membership_end = moment()
         .add(1, 'months').add(1, 'days').format('YYYY-MM-DD')
-    case 'year':
+    }
+    if (length === 'year') {
       this.free_membership_end = moment()
         .add(1, 'years').add(1, 'days').format('YYYY-MM-DD')
-    default:
-      throw 'Invalid free membership length'
     }
-    this.free_membership_start = moment().format('YYYY-MM-DD')
-    this.free_membership_type = type
+
     await this.save()
   }
 
