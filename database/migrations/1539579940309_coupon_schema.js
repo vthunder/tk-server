@@ -10,6 +10,7 @@ class CouponTokenSchema extends Schema {
       table.string('token').notNullable()
       table.string('status').notNullable().defaultTo('new') // or used
       table.integer('claimed_by')
+      table.string('sent_to')
       table.timestamps()
     })
   }
