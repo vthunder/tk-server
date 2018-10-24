@@ -70,16 +70,19 @@ module.exports = {
           type,
           token: Token.generate()
         })
-        if (type.match(/^ks_/)) {
-          await Mail.send('emails.coupon_ks', { token: coupon.token }, (message) => {
-            message
-              .to(email)
-              .from('hello@tinkerkitchen.org')
-              .subject('Your Tinker Kitchen reward is here!')
-          })
-          coupon.sent_to = email
-          await coupon.save()
-        }
+
+        let template = 'emails.coupon_staff'
+        if (type.match(/^ks_(month|year)/)) template = 'emails.coupon_ks'
+        if (type.match(/^ks_(daypasses|class)/)) template = 'emails.coupon_ks_passes'
+
+        await Mail.send(template, { token: coupon.token }, (message) => {
+          message
+            .to(email)
+            .from('hello@tinkerkitchen.org')
+            .subject('Your Tinker Kitchen reward is here!')
+        })
+        coupon.sent_to = email
+        await coupon.save()
       })
 
       return 'OK'
