@@ -78,17 +78,20 @@ class User extends Model {
     if (!length.match(/^(month|year)$/)) throw 'Invalid free membership length'
 
     this.free_membership_type = type
-    this.free_membership_start = moment().format('YYYY-MM-DD')
+    let start = moment()
+    let end
 
-    if (length === 'month') {
-      this.free_membership_end = moment()
-        .add(1, 'months').add(1, 'days').format('YYYY-MM-DD')
-    }
-    if (length === 'year') {
-      this.free_membership_end = moment()
-        .add(1, 'years').add(1, 'days').format('YYYY-MM-DD')
+    if (this.has_free_membership()) {
+      end = moment(this.free_membership_end)
+    } else {
+      this.free_membership_start = moment().format('YYYY-MM-DD')
+      end = moment().add(1, 'days') // bonus extra day!
     }
 
+    if (length === 'month') end = end.add(1, 'months')
+    if (length === 'year') end = end.add(1, 'years')
+
+    this.free_membership_end = end.format('YYYY-MM-DD')
     await this.save()
   }
 
