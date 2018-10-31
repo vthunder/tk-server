@@ -24,4 +24,5 @@ type Event {
 type Query {
   calendar_event(id: Int!): Event
   calendar_events: [Event]
+  google_calendar_events: [Event]
 }

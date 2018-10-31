@@ -199,6 +199,16 @@ module.exports = {
     secretApiKey: Env.get('STRIPE_KEY')
   },
 
+  googleapi: {
+    key: require('../googleapi-key.json').private_key,
+    serviceAcctId: Env.get('GOOGLEAPI_ACCT_ID'),
+    calendarUrl: 'https://calendar.google.com/calendar/embed?src=sandmill.org_jsl9ldavg54a3fhrbh03pimpc8%40group.calendar.google.com&ctz=America%2FLos_Angeles',
+    calendarId: {
+      'primary': 'sandmill.org_jsl9ldavg54a3fhrbh03pimpc8@group.calendar.google.com',
+    },
+    timezone: 'PDT',
+  },
+
   daypass: {
     tokenChars: '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ',
     tokenLength: 16,

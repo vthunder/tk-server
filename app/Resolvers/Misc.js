@@ -2,6 +2,7 @@ const moment = use('moment')
 const GraphQLError = use('Adonis/Addons/GraphQLError')
 const Config = use('Adonis/Src/Config')
 const Mailchimp = use('TK/Mailchimp')
+const CalendarAPI = use('TK/GoogleCalendarAPI')
 const CalendarEvent = use('App/Models/CalendarEvent')
 const Product = use('App/Models/Product')
 const Pass = use('App/Models/Pass')
@@ -29,6 +30,28 @@ module.exports = {
     calendar_events: async () => {
       const events = await CalendarEvent.all();
       return events.toJSON();
+    },
+    google_calendar_events: async () => {
+      try {
+        const id = Config.get('app.googleapi.calendarId.primary')
+        const events = await CalendarAPI.Events.list(id, {
+          timeMin: moment().subtract(1, 'months').format('YYYY-MM-DDTHH:mm:ssZ'),
+          timeMax: moment().add(2, 'months').format('YYYY-MM-DDTHH:mm:ssZ'),
+          singleEvents: 'true',
+          orderBy: 'startTime',
+        })
+        return events.map((e) => {
+          return {
+//            id: e.id,
+            title: e.summary,
+            start: moment(e.start.dateTime).format(),
+            end: moment(e.end.dateTime).format(),
+            all_day: false,
+          }
+        })
+      } catch (e) {
+        console.log(e)
+      }
     },
   },
   Mutation: {

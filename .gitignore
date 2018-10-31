@@ -9,3 +9,6 @@ tmp
 
 # The development sqlite file
 database/development.sqlite
+
+# Private key to use Google APIs
+googleapi-key.json
