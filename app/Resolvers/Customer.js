@@ -195,7 +195,7 @@ module.exports = {
             }
 
             const prodObj = await Stripe.products.retrieve(skuObj.product)
-            if (prodObj.name === 'Day pass') {
+            if (prodObj.name === 'Day Pass') {
               for (let n = 0; n < units; n++) {
                 await Pass.create({
                   token: Token.generate(),
