@@ -5,6 +5,7 @@
 type Event {
   id: Int
   title: String!
+  image_header: String
   start: String!
   end: String
   duration: Float
@@ -17,6 +18,21 @@ type Event {
   member_sku: SKU
 }
 
+scalar Upload
+
+input EventInput {
+  title: String
+  category: String
+  date: String
+  time: String
+  duration: Int
+  sku_id: String
+  member_sku_id: String
+  description: String
+#  image_header_id: String
+  image_header_file: Upload
+}
+
 #
 # Queries & Mutations
 #
@@ -25,4 +41,8 @@ type Query {
   calendar_event(id: Int!): Event
   calendar_events: [Event]
   google_calendar_events: [Event]
+}
+
+type Mutation {
+  create_calendar_event(event_data: EventInput!): String
 }

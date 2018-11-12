@@ -55,6 +55,19 @@ module.exports = {
     },
   },
   Mutation: {
+    create_calendar_event: async (_, { event_data }) => {
+      console.log(event_data)
+      const event = await CalendarEvent.create({
+        title: event_data.title,
+        category: event_data.category,
+        start: event_data.date + ' ' + event_data.time,
+        duration: event_data.duration,
+        description: event_data.description,
+        sku_id: event_data.sku_id,
+        member_sku_id: event_data.member_sku_id,
+      })
+      return 'OK'
+    },
     mailing_list_signup: async (_, { name, email, list }) => {
       list = Config.get('mail.mailchimp.defaultList', list)
       const listId = Config.get(`mail.mailchimp.listIds.${list}`)

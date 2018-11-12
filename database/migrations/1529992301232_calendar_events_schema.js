@@ -9,6 +9,7 @@ class CalendarEventsSchema extends Schema {
       table.string('sku_id')
       table.string('member_sku_id')
       table.string('title', 254).notNullable()
+      table.string('header_image', 254).defaultsTo('/images/default-class-header.jpg')
       table.boolean('is_all_day').defaultsTo(false)
       table.datetime('start').notNullable()
       table.float('duration')
