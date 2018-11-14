@@ -17,6 +17,7 @@ type Event {
   sku: SKU
   member_sku: SKU
   ext_book_url: String
+  ext_member_discount_code: String
 }
 
 scalar Upload

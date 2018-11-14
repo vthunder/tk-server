@@ -20,15 +20,28 @@ module.exports = {
       const products = await Product.all();
       return products.toJSON();
     },
-    calendar_event: async (_, { id }) => {
+    calendar_event: async (_, { id }, { auth }) => {
+      let user
+      try { user = await auth.getUser() }
+      catch (e) {}
       const event = await CalendarEvent.find(id);
       await event.fetch_skus()
+      if (!user || !user.is_member) event.ext_member_discount_code = ''
       const ret = await event.toJSON()
       return KV.mapObject(ret, ['sku.attributes', 'sku.metadata',
                                 'member_sku.attributes', 'member_sku.metadata'])
     },
-    calendar_events: async () => {
-      const events = await CalendarEvent.all();
+    calendar_events: async (_, {}, { auth }) => {
+      let user
+      try { user = await auth.getUser() }
+      catch (e) {}
+      let events = await CalendarEvent.all();
+      if (!user || !user.is_member) {
+        events = events.map((e) => {
+          e.ext_member_discount_code = ''
+          return e
+        })
+      }
       return events.toJSON();
     },
     google_calendar_events: async () => {
@@ -55,7 +68,7 @@ module.exports = {
     },
   },
   Mutation: {
-    create_calendar_event: async (_, { event_data }) => {
+    create_calendar_event: async (_, { event_data }, { auth }) => {
       const user = await auth.getUser()
       if (!user.can('create_calendar_event')) return 'Permission denied'
       const event = await CalendarEvent.create({
