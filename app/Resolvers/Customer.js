@@ -1,8 +1,10 @@
 const _ = use('lodash')
 const moment = use('moment')
+const Mail = use('Mail')
 const Config = use('Adonis/Src/Config')
 const GraphQLError = use('Adonis/Addons/GraphQLError')
 const Pass = use('App/Models/Pass')
+const Booking = use('App/Models/Booking')
 const Stripe = use('TK/Stripe')
 const Token = use('TK/Token')
 const KV = use('TK/KeyVal')
@@ -202,6 +204,22 @@ module.exports = {
                   order_id: orderObj.id,
                   user_id: user.id,
                 })
+              }
+            } else if (prodObj.metadata.event_id) {
+              for (let n = 0; n < units; n++) {
+                await Booking.create({
+                  user_id: user.id,
+                  calendar_event_id: prodObj.metadata.event_id,
+                })
+                await Mail.send(
+                  'emails.event_booked',
+                  { user, product: prodObj, units },
+                  (message) => {
+                    message
+                      .to(user.email)
+                      .from('hello@tinkerkitchen.org')
+                      .subject('Your Tinker Kitchen Event Booking')
+                  })
               }
             } else {
               console.log(`Unknown product: "${prodObj.name}", needs to be tracked!`)
