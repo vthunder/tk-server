@@ -56,7 +56,8 @@ module.exports = {
   },
   Mutation: {
     create_calendar_event: async (_, { event_data }) => {
-      console.log(event_data)
+      const user = await auth.getUser()
+      if (!user.can('create_calendar_event')) return 'Permission denied'
       const event = await CalendarEvent.create({
         title: event_data.title,
         category: event_data.category,
