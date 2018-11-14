@@ -35,14 +35,14 @@ module.exports = {
       let user
       try { user = await auth.getUser() }
       catch (e) {}
-      let events = await CalendarEvent.all();
+      let events = (await CalendarEvent.all()).toJSON()
       if (!user || !user.is_member) {
         events = events.map((e) => {
           e.ext_member_discount_code = ''
           return e
         })
       }
-      return events.toJSON();
+      return events
     },
     google_calendar_events: async () => {
       try {
