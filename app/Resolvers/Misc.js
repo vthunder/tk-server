@@ -25,7 +25,9 @@ module.exports = {
       catch (e) {}
       const event = await CalendarEvent.find(id);
       await event.fetch_skus()
-      if (!user || !user.is_member) event.ext_member_discount_code = ''
+      if (!(user && (user.is_member || user.has_free_membership()))) {
+        event.ext_member_discount_code = ''
+      }
       const ret = await event.toJSON()
       return KV.mapObject(ret, ['sku.attributes', 'sku.metadata',
                                 'member_sku.attributes', 'member_sku.metadata'])
@@ -35,7 +37,7 @@ module.exports = {
       try { user = await auth.getUser() }
       catch (e) {}
       let events = (await CalendarEvent.all()).toJSON()
-      if (!user || !user.is_member) {
+      if (!(user && (user.is_member || user.has_free_membership()))) {
         events = events.map((e) => {
           e.ext_member_discount_code = ''
           return e
