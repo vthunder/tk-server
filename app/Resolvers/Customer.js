@@ -162,12 +162,12 @@ module.exports = {
 
       return sub
     },
-    create_order: async (_, { skus }, { auth }) => {
+    create_order: async (_, { items }, { auth }) => {
       const user = await auth.getUser()
       const order = await Stripe.orders.create({
         customer: user.stripe_id,
         currency: 'usd',
-        items: skus.map(s => ({ parent: s }))
+        items: items.map(i => ({ parent: i.sku, quantity: i.quantity }))
       })
       order.metadata = KV.mapField(order.metadata)
       return order
