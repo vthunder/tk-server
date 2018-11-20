@@ -47,9 +47,7 @@ module.exports = {
       }
       return {
         nonmember_1: get_sku('nonmember_1'),
-        nonmember_5: get_sku('nonmember_5'),
         member_1: get_sku('member_1'),
-        member_5: get_sku('member_5'),
       }
     },
     user_passes: async (_, { type }, { auth }) => {
