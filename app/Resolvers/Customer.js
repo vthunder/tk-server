@@ -191,9 +191,9 @@ module.exports = {
           .forEach(async (i) => {
             const skuObj = await Stripe.skus.retrieve(i.parent)
 
-            let units = 1
+            let units = (i.quantity || 1)
             if (skuObj.attributes && skuObj.attributes['bundled-units']) {
-              units = skuObj.attributes['bundled-units']
+              units = units * skuObj.attributes['bundled-units']
             }
 
             const prodObj = await Stripe.products.retrieve(skuObj.product)
