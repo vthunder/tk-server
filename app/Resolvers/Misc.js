@@ -176,7 +176,7 @@ module.exports = {
       coupon.claimed_by = user.id
       await coupon.save()
 
-      return 'OK'
+      return { status: 'OK', type: coupon.type }
     },
   },
 }
