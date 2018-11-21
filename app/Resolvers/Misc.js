@@ -159,9 +159,18 @@ module.exports = {
         await user.passes().create({ token: Token.generate(), type: 'class' })
       }
 
-      // 2 day passes (all coupon types including 'ks_daypasses')
-      await user.passes().create({ token: Token.generate() })
-      await user.passes().create({ token: Token.generate() })
+      // 2 day passes (all KS coupon types)
+      if (coupon.type.match(/ks_(month|year|class|daypasses)/)) {
+        await user.passes().create({ token: Token.generate() })
+        await user.passes().create({ token: Token.generate() })
+      }
+
+      // Non-KS coupons
+
+      // 1 day pass
+      if (coupon.type === 'daypass') {
+        await user.passes().create({ token: Token.generate() })
+      }
 
       coupon.status = 'used'
       coupon.claimed_by = user.id
