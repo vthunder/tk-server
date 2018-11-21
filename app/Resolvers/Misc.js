@@ -99,7 +99,7 @@ module.exports = {
     create_coupon_token: async (_, { type, count }, { auth }) => {
       const user = await auth.getUser()
       if (!user.can('create_coupon_tokens')) return 'Permission denied'
-      if (!type.match(/(staff|ks_daypasses|ks_month|ks_year|ks_class)/))
+      if (!type.match(/(staff|ks_daypasses|ks_month|ks_year|ks_class|daypass)/))
         return 'Bad coupon type'
 
       return [...Array(count)].map(async (_, i) => {
