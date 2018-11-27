@@ -23,6 +23,7 @@ module.exports = {
       const coupon_members = await User
             .query()
             .where('free_membership_end', '>=', now)
+            .andWhere('is_member', '=', 0)
             .getCount()
       const events = await CalendarEvent
             .query()
