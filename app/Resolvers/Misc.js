@@ -71,7 +71,9 @@ module.exports = {
   Mutation: {
     create_calendar_event: async (_, { event_data }, { auth }) => {
       const user = await auth.getUser()
-      if (!user.can('create_calendar_event')) return 'Permission denied'
+      const perms = await user.getPermissions()
+      if (!perms.includes('create_calendar_event')) return new GraphQLError('Permission denied')
+
       const event = await CalendarEvent.create({
         title: event_data.title,
         category: event_data.category,
@@ -98,7 +100,8 @@ module.exports = {
     },
     create_coupon_token: async (_, { type, count }, { auth }) => {
       const user = await auth.getUser()
-      if (!user.can('create_coupon_tokens')) return 'Permission denied'
+      const perms = await user.getPermissions()
+      if (!perms.includes('create_coupon_tokens')) return new GraphQLError('Permission denied')
       if (!type.match(/(staff|ks_daypasses|ks_month|ks_year|ks_class|daypass)/))
         return 'Bad coupon type'
 
@@ -112,7 +115,8 @@ module.exports = {
     },
     send_coupon_tokens: async (_, { type, emails }, { auth }) => {
       const user = await auth.getUser()
-      if (!user.can('create_coupon_tokens')) return 'Permission denied'
+      const perms = await user.getPermissions()
+      if (!perms.includes('create_coupon_tokens')) return new GraphQLError('Permission denied')
       if (!type.match(/(staff|ks_daypasses|ks_month|ks_year|ks_class)/))
         return 'Bad coupon type'
 
