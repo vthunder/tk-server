@@ -50,6 +50,8 @@ class DatabaseSeeder {
         description: 'Create a calendar event' },
       { name: 'Edit calendar events', slug: 'edit_calendar_events',
         description: 'Edit a calendar event' },
+      { name: 'Read the admin dashboard', slug: 'read_admin_dashboard',
+        description: 'Read the admin dashboard' },
     ]
     const permissionObjs = {}
 
@@ -66,14 +68,16 @@ class DatabaseSeeder {
                   slug: 'administrator',
                   description: 'Super-user' },
         permissions: ['delete_users', 'create_coupon_tokens',
-                      'create_calendar_events', 'edit_calendar_events']
+                      'create_calendar_events', 'edit_calendar_events',
+                      'read_admin_dashboard']
       },
       {
         fields: { name: 'Manager',
                   slug: 'manager',
                   description: 'General staff' },
         permissions: ['create_coupon_tokens',
-                      'create_calendar_events', 'edit_calendar_events']
+                      'create_calendar_events', 'edit_calendar_events',
+                      'read_admin_dashboard']
       },
     ]
     const roleObjs = []

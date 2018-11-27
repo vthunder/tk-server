@@ -1,0 +1,15 @@
+type AdminStats {
+  num_members: Int
+  num_paying_members: Int
+  num_coupon_members: Int
+  num_events: Int
+  num_event_bookings: Int
+}
+
+#
+# Queries & Mutations
+#
+
+type Query {
+  admin_stats: AdminStats
+}
