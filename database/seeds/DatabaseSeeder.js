@@ -28,7 +28,7 @@ class DatabaseSeeder {
   async _users() {
     let user = new User()
     user.name = 'Dan'
-    user.email = 'dan@example.com'
+    user.email = 'dan@tinkerkitchen.org'
     user.password = 'asdf1234'
     await user.save()
 
@@ -92,11 +92,14 @@ class DatabaseSeeder {
     //
     // Attach role to admin user
     //
-    let admin = await User.findBy('email', 'dan@example.com')
+    let admin = await User.findBy('email', 'dan@tinkerkitchen.org')
     await admin.roles().attach(roleObjs.map(r => (r.id)))
   }
 
   async _events() {
+    const eventsMastersArray = await Factory
+          .model('App/Models/CalendarEventMaster')
+          .createMany(15);
     const eventsArray = await Factory
           .model('App/Models/CalendarEvent')
           .createMany(15);

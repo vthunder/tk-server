@@ -23,20 +23,34 @@ Factory.blueprint('App/Models/User', async (faker) => {
   };
 });
 
-Factory.blueprint('App/Models/CalendarEvent', (faker) => {
-  const daysFromNow = faker.integer({ min: 1, max: 30 });
-  const startDay = moment().add(daysFromNow, 'days');
-  const start = startDay.format('YYYY-MM-DD HH:mm:ss');
-  const duration = faker.integer({ min: 1, max: 4 });
-
+Factory.blueprint('App/Models/CalendarEventMaster', (faker) => {
   return {
     title: faker.sentence({ words: 4 }),
     is_all_day: faker.bool({ likelihood: 30 }),
-    start,
-    duration,
+    duration: faker.integer({ min: 1, max: 4 }),
     description: faker.paragraph(),
     category: faker.pickone(['class', 'meetup', 'talk', 'private']),
     sku_id: 'sku_DjaxIRazOp3agh',
     member_sku_id: 'sku_DjbEtpUSnstoeS',
+    price: faker.pickone([7500, 10000, 12500]),
+    member_price: faker.pickone([5500, 8000, 10500]),
+  };
+});
+
+Factory.blueprint('App/Models/CalendarEvent', (faker) => {
+  const daysFromNow = faker.integer({ min: 1, max: 30 });
+  const startDay = moment().add(daysFromNow, 'days');
+
+  return {
+    title: faker.sentence({ words: 4 }),
+    is_all_day: faker.bool({ likelihood: 30 }),
+    start: startDay.format('YYYY-MM-DD HH:mm:ss'),
+    duration: faker.integer({ min: 1, max: 4 }),
+    description: faker.paragraph(),
+    category: faker.pickone(['class', 'meetup', 'talk', 'private']),
+    sku_id: 'sku_DjaxIRazOp3agh',
+    member_sku_id: 'sku_DjbEtpUSnstoeS',
+    price: faker.pickone([7500, 10000, 12500]),
+    member_price: faker.pickone([5500, 8000, 10500]),
   };
 });

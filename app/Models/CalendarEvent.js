@@ -7,17 +7,17 @@ const moment = use('moment')
 class CalendarEvent extends Model {
   // camelcase props for json -> graphql api
   static get computed() {
-    return ['all_day', 'end'];
+    return ['master_id', 'all_day', 'end',
+            'sku', 'member_sku']
   }
 
-  static get computed() {
-    return ['sku', 'member_sku']
+  getMasterId() {
+    return this.calendar_event_master_id
   }
 
   getSku() {
     try {
       return this._sku
-      // return await Stripe.skus.retrieve(this.sku_id)
     } catch (e) {
       return null
     }
@@ -26,7 +26,6 @@ class CalendarEvent extends Model {
   getMemberSku() {
     try {
       return this._member_sku
-      // return await Stripe.skus.retrieve(this.member_sku_id)
     } catch (e) {
       return null
     }
