@@ -4,6 +4,7 @@ const Config = use('Adonis/Src/Config')
 const Mailchimp = use('TK/Mailchimp')
 const CalendarAPI = use('TK/GoogleCalendarAPI')
 const CalendarEvent = use('App/Models/CalendarEvent')
+const CalendarEventMaster = use('App/Models/CalendarEventMaster')
 const Product = use('App/Models/Product')
 const CouponToken = use('App/Models/CouponToken')
 const KV = use('TK/KeyVal')
@@ -37,13 +38,18 @@ module.exports = {
       try { user = await auth.getUser() }
       catch (e) {}
       let events = (await CalendarEvent.all()).toJSON()
+      let masters = (await CalendarEventMaster.all()).toJSON()
       if (!(user && (user.is_member || user.has_free_membership()))) {
         events = events.map((e) => {
           e.ext_member_discount_code = ''
           return e
         })
+        masters = masters.map((e) => {
+          e.ext_member_discount_code = ''
+          return e
+        })
       }
-      return events
+      return { events, masters }
     },
     google_calendar_events: async () => {
       try {

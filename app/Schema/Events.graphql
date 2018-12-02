@@ -4,9 +4,10 @@
 
 type Event {
   id: Int
-  title: String!
+  master_id: Int
+  title: String
   image_header: String
-  start: String!
+  start: String
   end: String
   duration: Float
   all_day: Boolean
@@ -18,6 +19,27 @@ type Event {
   member_sku: SKU
   ext_book_url: String
   ext_member_discount_code: String
+}
+
+type EventMaster {
+  id: Int
+  title: String
+  image_header: String
+  duration: Float
+  all_day: Boolean
+  description: String
+  category: String
+  price: Int
+  member_price: Int
+  sku: SKU
+  member_sku: SKU
+  ext_book_url: String
+  ext_member_discount_code: String
+}
+
+type EventsResult {
+  events: [Event]
+  masters: [EventMaster]
 }
 
 scalar Upload
@@ -41,7 +63,7 @@ input EventInput {
 
 type Query {
   calendar_event(id: Int!): Event
-  calendar_events: [Event]
+  calendar_events: EventsResult
   google_calendar_events: [Event]
 }
 
