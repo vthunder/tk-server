@@ -268,8 +268,8 @@ test('mutation: create_order', async ({ assert }) => {
   try {
     const ret = await apollo.mutate({
       mutation: gql`
-        mutation($skus: [String]) {
-          create_order(skus: $skus) {
+        mutation($items: [OrderItemInput]) {
+          create_order(items: $items) {
             id
             amount
             amount_returned
@@ -295,7 +295,9 @@ test('mutation: create_order', async ({ assert }) => {
         }
         `,
       variables: {
-        skus: ['member-5']
+        items: [
+          { sku: 'member-5', quantity: 1 },
+        ]
       }
     })
     assert.isOk(ret.data.create_order.id)
@@ -309,7 +311,7 @@ test('mutation: create_order', async ({ assert }) => {
     assert.equal(ret.data.create_order.items.length, 3)
     assert.equal(ret.data.create_order.items[0].amount, 12500)
     assert.equal(ret.data.create_order.items[0].currency, 'usd')
-    assert.equal(ret.data.create_order.items[0].description, 'Day pass')
+    assert.equal(ret.data.create_order.items[0].description, 'Day Pass')
     assert.equal(ret.data.create_order.items[0].parent, 'member-5')
     assert.equal(ret.data.create_order.items[0].quantity, 1)
     assert.equal(ret.data.create_order.items[0].type, 'sku')
@@ -335,6 +337,7 @@ test('mutation: create_order', async ({ assert }) => {
   } catch (e) {
     console.log(e)
     console.log(e.networkError.result.errors)
+    throw e;
   }
 }).timeout(0)
 
@@ -382,7 +385,7 @@ test('mutation: pay_order', async ({ assert }) => {
     assert.equal(ret.data.pay_order.items.length, 3)
     assert.equal(ret.data.pay_order.items[0].amount, 12500)
     assert.equal(ret.data.pay_order.items[0].currency, 'usd')
-    assert.equal(ret.data.pay_order.items[0].description, 'Day pass')
+    assert.equal(ret.data.pay_order.items[0].description, 'Day Pass')
     assert.equal(ret.data.pay_order.items[0].parent, 'member-5')
     assert.equal(ret.data.pay_order.items[0].quantity, 1)
     assert.equal(ret.data.pay_order.items[0].type, 'sku')
