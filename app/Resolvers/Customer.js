@@ -164,9 +164,32 @@ module.exports = {
     },
     create_order: async (_, { items }, { auth }) => {
       const user = await auth.getUser()
+      await user.stripe_check()
+      const member = user.is_member || user.has_free_membership()
+
+      let discounts = 0
+      for (const i of items) {
+        const sku = await Stripe.skus.retrieve(i.sku)
+        const product = await Stripe.products.retrieve(sku.product)
+        if (member && product.metadata.member_discount) {
+          discounts += product.metadata.member_discount * i.quantity
+        }
+      }
+
+      let coupon
+      if (discounts) {
+        coupon = await Stripe.coupons.create({
+          amount_off: discounts,
+          currency: 'usd',
+          duration: 'once',
+          name: 'Member discounts',
+        })
+      }
+
       const order = await Stripe.orders.create({
         customer: user.stripe_id,
         currency: 'usd',
+        coupon: coupon.id,
         items: items.map(i => ({ parent: i.sku, quantity: i.quantity }))
       })
       order.metadata = KV.mapField(order.metadata)
