@@ -232,8 +232,13 @@ type FeeDetails {
 }
 
 input OrderItemInput {
+  id: String
+  type: String
+  title: String
   sku: String
   quantity: Int
+  amount: Int
+  amount_each: Int
 }
 
 #
@@ -253,6 +258,6 @@ type Mutation {
   update_customer(source: String): Customer
   delete_customer: String
   create_subscription(plans: [String], code: String): Subscription
-  create_order(items: [OrderItemInput]): Order
-  pay_order(order: String!, source: String): Order
+  create_order(items: [OrderItemInput], coupon_code: String): Order
+  pay_order(order: String, source: String, email: String): Order
 }
