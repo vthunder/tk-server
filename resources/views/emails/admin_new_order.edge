@@ -1,0 +1,11 @@
+<p>New order!</p>
+
+<p>For: {{ user }} {{ order.email }}</p>
+
+<ul>
+  @each(item in order.items)
+    <li>{{ item.description }} ({{ item.quantity }})</li>
+  @endeach
+</ul>
+
+<p>Total: {{ order.amount }}</p>
