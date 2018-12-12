@@ -5,11 +5,11 @@ const Config = use('Adonis/Src/Config')
 const GraphQLError = use('Adonis/Addons/GraphQLError')
 const Pass = use('App/Models/Pass')
 const Booking = use('App/Models/Booking')
+const GiftCertificate = use('App/Models/GiftCertificate')
 const Stripe = use('TK/Stripe')
 const Token = use('TK/Token')
 const KV = use('TK/KeyVal')
-
-// note: auth.getUser() implicitly checks Authorization header, throws otherwise
+const Auth = use('TK/Auth')
 
 // 1. Copy parent attributes to sku order items
 // 2. Ensure parent is always a string (as per graphql schema)
@@ -38,7 +38,7 @@ function fixChargeItems(array) {
 module.exports = {
   Query: {
     customer: async (_, args, { auth }) => {
-      const user = await auth.getUser()
+      const user = await Auth.requireUser(auth)
       let customer = await Stripe.customers.retrieve(user.stripe_id)
       customer.metadata = KV.mapField(customer.metadata)
       customer.sources = customer.sources.data.map(s => {
@@ -48,25 +48,25 @@ module.exports = {
       return customer
     },
     customer_payment_sources: async (_, args, { auth }) => {
-      const user = await auth.getUser()
+      const user = await Auth.requireUser(auth)
       if (!user.stripe_id) return []
       const ret = await Stripe.customers.retrieve(user.stripe_id)
       return ret.sources.data
     },
     customer_subscriptions: async (_, args, { auth }) => {
-      const user = await auth.getUser()
+      const user = await Auth.requireUser(auth)
       if (!user.stripe_id) return []
       const subs = await Stripe.subscriptions.list({ customer: user.stripe_id })
       return KV.mapArray(subs.data, ['metadata', 'plan.metadata'])
     },
     customer_orders: async (_, args, { auth }) => {
-      const user = await auth.getUser()
+      const user = await Auth.requireUser(auth)
       if (!user.stripe_id) return []
       const orders = await Stripe.orders.list({ customer: user.stripe_id })
       return KV.mapArray(orders.data, ['metadata'])
     },
     customer_charges: async (_, args, { auth }) => {
-      const user = await auth.getUser()
+      const user = await Auth.requireUser(auth)
       if (!user.stripe_id) return []
       let charges = await Stripe.charges.list({
         customer: user.stripe_id,
@@ -81,7 +81,7 @@ module.exports = {
   },
   Mutation: {
     get_or_create_customer: async (_, { source }, { auth }) => {
-      const user = await auth.getUser()
+      const user = await Auth.requireUser(auth)
       let customer
 
       if (user.stripe_id) {
@@ -116,7 +116,7 @@ module.exports = {
       return customer
     },
     update_customer: async (_, { source }, { auth }) => {
-      const user = await auth.getUser()
+      const user = await Auth.requireUser(auth)
       const customer = await Stripe.customers.update(user.stripe_id, { source })
       customer.metadata = KV.mapField(customer.metadata)
       customer.sources = customer.sources.data.map(s => {
@@ -126,14 +126,14 @@ module.exports = {
       return customer
     },
     delete_customer: async (_, args, { auth }) => {
-      const user = await auth.getUser()
+      const user = await Auth.requireUser(auth)
       if (!user.can('delete_users')) throw new GraphQLError('Not allowed to delete users')
       // TODO: allow passing in user to delete
       await Stripe.customers.del(user.stripe_id)
       return 'ok'
     },
     create_subscription: async (_, { plans, code }, { auth }) => {
-      const user = await auth.getUser()
+      const user = await Auth.requireUser(auth)
 
       user.last_member_check = '1970-01-01 00:00:00' // force refetch on next pageload
       await user.save()
@@ -163,49 +163,57 @@ module.exports = {
       return sub
     },
     create_order: async (_, { items }, { auth }) => {
-      const user = await auth.getUser()
-      await user.stripe_check()
-      const member = user.is_member || user.has_free_membership()
-
+      const user = await Auth.getUser(auth)
+      let member = false
       let discounts = 0
-      for (const i of items) {
-        const sku = await Stripe.skus.retrieve(i.sku)
-        const product = await Stripe.products.retrieve(sku.product)
-        if (member && product.metadata.member_discount) {
-          discounts += product.metadata.member_discount * i.quantity
+      let coupon
+
+      const order_args = {
+        currency: 'usd',
+        items: items.map(i => ({ parent: i.sku, quantity: i.quantity }))
+      }
+
+      if (user) {
+        await user.stripe_check()
+        member = user.is_member || user.has_free_membership()
+
+        order_args.customer = user.stripe_id
+
+        for (const i of items) {
+          const sku = await Stripe.skus.retrieve(i.sku)
+          const product = await Stripe.products.retrieve(sku.product)
+          if (member && product.metadata.member_discount) {
+            discounts += product.metadata.member_discount * i.quantity
+          }
+        }
+
+        if (discounts) {
+          coupon = await Stripe.coupons.create({
+            amount_off: discounts,
+            currency: 'usd',
+            duration: 'once',
+            name: 'Member discounts',
+          })
+          order_args.coupon = coupon.id
         }
       }
 
-      let coupon
-      if (discounts) {
-        coupon = await Stripe.coupons.create({
-          amount_off: discounts,
-          currency: 'usd',
-          duration: 'once',
-          name: 'Member discounts',
-        })
-      }
-
-      const order = await Stripe.orders.create({
-        customer: user.stripe_id,
-        currency: 'usd',
-        coupon: coupon.id,
-        items: items.map(i => ({ parent: i.sku, quantity: i.quantity }))
-      })
+      const order = await Stripe.orders.create(order_args)
       order.metadata = KV.mapField(order.metadata)
       return order
     },
-    pay_order: async (_, { order, source }, { auth }) => {
-      const user = await auth.getUser()
+    pay_order: async (_, { order, source, email }, { auth }) => {
+      const user = await Auth.getUser(auth)
       let orderObj
 
-      if (user.stripe_id) {
+      if (user && user.stripe_id) {
         if (source) {
           await Stripe.customers.update(user.stripe_id, { source: source })
         }
         orderObj = await Stripe.orders.pay(order, { customer: user.stripe_id })
       } else {
-        orderObj = await Stripe.orders.pay(order, { source })
+        email = user? user.email : email
+        orderObj = await Stripe.orders.pay(order, { source, email })
       }
 
       if (orderObj.status === 'paid') {
@@ -219,6 +227,7 @@ module.exports = {
               units = units * skuObj.attributes['bundled-units']
             }
 
+            // FIXME: section below doesn't support purchases without signing in
             const prodObj = await Stripe.products.retrieve(skuObj.product)
             if (prodObj.name === 'Day Pass') {
               for (let n = 0; n < units; n++) {
@@ -234,20 +243,40 @@ module.exports = {
                   user_id: user.id,
                   calendar_event_id: prodObj.metadata.event_id,
                 })
-                await Mail.send(
-                  'emails.event_booked',
-                  { user, product: prodObj, units },
-                  (message) => {
-                    message
-                      .to(user.email)
-                      .from('hello@tinkerkitchen.org')
-                      .subject('Your Tinker Kitchen Event Booking')
-                  })
+              }
+              await Mail.send(
+                'emails.event_booked',
+                { user, product: prodObj, units },
+                (message) => {
+                  message
+                    .to(user.email)
+                    .from('hello@tinkerkitchen.org')
+                    .subject('Your Tinker Kitchen Event Booking')
+                })
+            } else if (prodObj.name === 'Gift Certificate') {
+              for (let n = 0; n < units; n++) {
+                const certOpts = {
+                  amount: skuObj.price,
+                  order_id: orderObj.id,
+                }
+                if (email) certOpts.email = email
+                if (user) certOpts.user_id = user.id
+                await GiftCertificate.create(certOpts)
               }
             } else {
               console.log(`Unknown product: "${prodObj.name}", needs to be tracked!`)
             }
           });
+
+        await Mail.send(
+          'emails.admin_new_order',
+          { user, order: orderObj },
+          (message) => {
+            message
+              .to('hello@tinkerkitchen.org')
+              .from('hello@tinkerkitchen.org')
+              .subject('New Order')
+          })
       }
 
       orderObj.metadata = KV.mapField(orderObj.metadata)
