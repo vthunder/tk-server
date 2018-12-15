@@ -10,8 +10,7 @@ const CouponToken = use('App/Models/CouponToken')
 const KV = use('TK/KeyVal')
 const Token = use('TK/Token')
 const Mail = use('Mail')
-
-// note: auth.getUser() implicitly checks Authorization header, throws otherwise
+const Auth = use('TK/Auth')
 
 module.exports = {
   Query: {
@@ -21,9 +20,7 @@ module.exports = {
       return products.toJSON();
     },
     calendar_event: async (_, { id }, { auth }) => {
-      let user
-      try { user = await auth.getUser() }
-      catch (e) {}
+      const user = await Auth.getUser(auth)
       const event = await CalendarEvent.find(id);
       await event.fetch_skus()
       if (!(user && (user.is_member || user.has_free_membership()))) {
@@ -34,9 +31,7 @@ module.exports = {
                                 'member_sku.attributes', 'member_sku.metadata'])
     },
     calendar_events: async (_, {}, { auth }) => {
-      let user
-      try { user = await auth.getUser() }
-      catch (e) {}
+      const user = await Auth.getUser(auth)
       let events = (await CalendarEvent.all()).toJSON()
       let masters = (await CalendarEventMaster.all()).toJSON()
       if (!(user && (user.is_member || user.has_free_membership()))) {
@@ -73,10 +68,17 @@ module.exports = {
         console.log(e)
       }
     },
+    gift_certificate_balance: async (_, {}, { auth }) => {
+      const user = await Auth.requireUser(auth)
+      const certs = await CouponToken.query()
+            .where('claimed_by', '=', user.id)
+            .andWhere('type', '=', 'gift_cert')
+      return certs.reduce((acc, c) => acc + c.amount_remaining, 0)
+    },
   },
   Mutation: {
     create_calendar_event: async (_, { event_data }, { auth }) => {
-      const user = await auth.getUser()
+      const user = await Auth.requireUser(auth)
       const perms = await user.getPermissions()
       if (!perms.includes('create_calendar_event')) return new GraphQLError('Permission denied')
 
@@ -105,7 +107,7 @@ module.exports = {
       return 'OK'
     },
     create_coupon_token: async (_, { type, count }, { auth }) => {
-      const user = await auth.getUser()
+      const user = await Auth.requireUser(auth)
       const perms = await user.getPermissions()
       if (!perms.includes('create_coupon_tokens')) return new GraphQLError('Permission denied')
       if (!type.match(/(staff|ks_daypasses|ks_month|ks_year|ks_class|daypass)/))
@@ -120,7 +122,7 @@ module.exports = {
       })
     },
     send_coupon_tokens: async (_, { type, emails }, { auth }) => {
-      const user = await auth.getUser()
+      const user = await Auth.requireUser(auth)
       const perms = await user.getPermissions()
       if (!perms.includes('create_coupon_tokens')) return new GraphQLError('Permission denied')
       if (!type.match(/(staff|ks_daypasses|ks_month|ks_year|ks_class)/))
@@ -149,7 +151,7 @@ module.exports = {
       return 'OK'
     },
     use_coupon_token: async (_, { token }, { auth }) => {
-      const user = await auth.getUser()
+      const user = await Auth.requireUser(auth)
       const coupon = await CouponToken.findBy('token', token)
       if (!coupon) return 'Invalid coupon code'
       if (coupon.status !== 'new') return 'Coupon already used'

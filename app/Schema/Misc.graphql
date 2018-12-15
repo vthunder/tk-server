@@ -9,6 +9,7 @@ type CouponStatus {
 
 type Query {
   ping: String
+  gift_certificate_balance: Int
 }
 
 type Mutation {
