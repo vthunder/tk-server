@@ -9,8 +9,12 @@ class CouponTokenSchema extends Schema {
       table.string('type').notNullable().defaultTo('ks_month') // or ks_year, staff, ...
       table.string('token').notNullable()
       table.string('status').notNullable().defaultTo('new') // or used
+      table.integer('user_id')
       table.integer('claimed_by')
       table.string('sent_to')
+      table.integer('amount')
+      table.integer('amount_remaining')
+      table.string('order_id')
       table.timestamps()
     })
   }
