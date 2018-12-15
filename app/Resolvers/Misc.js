@@ -182,6 +182,10 @@ module.exports = {
         await user.passes().create({ token: Token.generate() })
       }
 
+      if (coupon.type === 'gift_cert') {
+        // OK, just set status/claimed_by below
+      }
+
       coupon.status = 'used'
       coupon.claimed_by = user.id
       await coupon.save()

@@ -5,9 +5,9 @@ const Config = use('Adonis/Src/Config')
 const GraphQLError = use('Adonis/Addons/GraphQLError')
 const Pass = use('App/Models/Pass')
 const Booking = use('App/Models/Booking')
-const GiftCertificate = use('App/Models/GiftCertificate')
-const Stripe = use('TK/Stripe')
+const CouponToken = use('App/Models/CouponToken')
 const Token = use('TK/Token')
+const Stripe = use('TK/Stripe')
 const KV = use('TK/KeyVal')
 const Auth = use('TK/Auth')
 
@@ -256,12 +256,15 @@ module.exports = {
             } else if (prodObj.name === 'Gift Certificate') {
               for (let n = 0; n < units; n++) {
                 const certOpts = {
+                  type: 'gift_cert',
+                  token: Token.generate(),
                   amount: skuObj.price,
+                  amount_remaining: skuObj.price,
                   order_id: orderObj.id,
                 }
-                if (email) certOpts.email = email
+                if (email) certOpts.sent_to = email
                 if (user) certOpts.user_id = user.id
-                await GiftCertificate.create(certOpts)
+                await CouponToken.create(certOpts)
               }
             } else {
               console.log(`Unknown product: "${prodObj.name}", needs to be tracked!`)
