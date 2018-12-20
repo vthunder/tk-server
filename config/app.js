@@ -230,4 +230,6 @@ module.exports = {
       backer_yearly: Env.get('DISCOUNT_BACKER_YEARLY'),
     },
   },
+
+  default_event_master_id: 1,
 }

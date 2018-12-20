@@ -1,59 +1,49 @@
 'use strict'
 
 const Stripe = use('TK/Stripe')
+const Config = use('Config')
 const Model = use('Model')
 const moment = use('moment')
+const CalendarEventMaster = use('App/Models/CalendarEventMaster')
 
 class CalendarEvent extends Model {
-  // camelcase props for json -> graphql api
   static get computed() {
-    return ['master_id', 'all_day', 'end',
-            'sku', 'member_sku']
+    return ['all_day', 'end']
   }
 
-  getMasterId() {
-    return this.calendar_event_master_id
+  async load_master() {
+    const id = this.calendar_event_master_id || Config.get('app.default_event_master_id')
+    this.master = await CalendarEventMaster.find(id)
   }
 
-  getSku() {
-    try {
-      return this._sku
-    } catch (e) {
-      return null
-    }
+  _propMerge(prop) {
+    if (!this.master) return this[prop]
+    return this[prop] || this.master[prop]
   }
 
-  getMemberSku() {
-    try {
-      return this._member_sku
-    } catch (e) {
-      return null
-    }
-  }
-
-  async fetch_skus() {
-    try {
-      this._sku = await Stripe.skus.retrieve(this.sku_id)
-      this._member_sku = await Stripe.skus.retrieve(this.member_sku_id)
-    } catch (e) {
-      this._sku = null
-    }
-  }
-
-  getAllDay() {
-    return this.is_all_day
-  }
+  getSkuId() { return this._propMerge('sku_id') }
+  getTitle() { return this._propMerge('title') }
+  getImageHeader() { return this._propMerge('image_header') }
+  getAllDay() { return this._propMerge('is_all_day') }
+  getDuration() { return this._propMerge('duration') }
+  getDescription() { return this._propMerge('description') }
+  getCategory() { return this._propMerge('category') }
+  getPrice() { return this._propMerge('price') }
+  getMemberPrice() { return this._propMerge('member_price') }
+  getExtBookUrl() { return this._propMerge('ext_book_url') }
+  getExtMemberDiscountCode() { return this._propMerge('ext_member_discount_code') }
+  getMaxSize() { return this._propMerge('max_size') }
 
   getStart() {
-    return moment(this.start).format('YYYY-MM-DD HH:mm:ss')
+    return moment(this._propMerge('start')).format('YYYY-MM-DD HH:mm:ss')
   }
 
   getEnd() {
-    if (this.is_all_day) {
+    if (this._propMerge('is_all_day')) {
       return null
     } else {
-      return moment(this.start)
-        .add(this.duration, 'hours')
+      return moment(this._propMerge('start'))
+        .add(this._propMerge('duration'), 'hours')
         .format('YYYY-MM-DD HH:mm:ss')
     }
   }

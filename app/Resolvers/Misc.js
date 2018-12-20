@@ -21,30 +21,32 @@ module.exports = {
     },
     calendar_event: async (_, { id }, { auth }) => {
       const user = await Auth.getUser(auth)
-      const event = await CalendarEvent.find(id);
-      await event.fetch_skus()
+      const event = await CalendarEvent.find(id)
+      await event.load_master()
       if (!(user && (user.is_member || user.has_free_membership()))) {
         event.ext_member_discount_code = ''
       }
-      const ret = await event.toJSON()
-      return KV.mapObject(ret, ['sku.attributes', 'sku.metadata',
-                                'member_sku.attributes', 'member_sku.metadata'])
+      return event.toJSON()
     },
     calendar_events: async (_, {}, { auth }) => {
       const user = await Auth.getUser(auth)
-      let events = (await CalendarEvent.all()).toJSON()
-      let masters = (await CalendarEventMaster.all()).toJSON()
+      let events = await CalendarEvent.all()
+      const masters = await CalendarEventMaster.all()
+      const default_master_id = Config.get('app.default_event_master_id')
+
+      for (let n = 0; n < events.rows.length; n++) {
+        const id = events.rows[n].calendar_event_master_id || default_master_id
+        const master = masters.rows.filter(m => m.id === id)
+        events.rows[n].master = master[0]
+      }
+      events = events.toJSON()
       if (!(user && (user.is_member || user.has_free_membership()))) {
         events = events.map((e) => {
           e.ext_member_discount_code = ''
           return e
         })
-        masters = masters.map((e) => {
-          e.ext_member_discount_code = ''
-          return e
-        })
       }
-      return { events, masters }
+      return events
     },
     google_calendar_events: async () => {
       try {
