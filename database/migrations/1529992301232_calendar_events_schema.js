@@ -6,10 +6,12 @@ class CalendarEventsSchema extends Schema {
   up () {
     this.create('calendar_events', (table) => {
       table.increments()
+      table.string('status').defaultTo('open').notNullable()
       table.string('sku_id')
       table.string('member_sku_id')
       table.string('member_discount_id')
       table.string('title', 254)
+      table.string('slug', 254)
       table.string('image_header', 254)
       table.boolean('is_all_day')
       table.datetime('start').notNullable()
