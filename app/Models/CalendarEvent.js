@@ -12,8 +12,7 @@ class CalendarEvent extends Model {
   }
 
   async load_master() {
-    const id = this.calendar_event_master_id || Config.get('app.default_event_master_id')
-    this.master = await CalendarEventMaster.find(id)
+    this.master = await CalendarEventMaster.find(this.getMasterId())
   }
 
   _propMerge(prop) {
@@ -21,8 +20,10 @@ class CalendarEvent extends Model {
     return this[prop] || this.master[prop]
   }
 
+  getMasterId() { return this.master_id || Config.get('app.default_event_master_id') }
   getSkuId() { return this._propMerge('sku_id') }
   getTitle() { return this._propMerge('title') }
+  getSlug() { return this._propMerge('slug') }
   getImageHeader() { return this._propMerge('image_header') }
   getAllDay() { return this._propMerge('is_all_day') }
   getDuration() { return this._propMerge('duration') }
@@ -30,9 +31,9 @@ class CalendarEvent extends Model {
   getCategory() { return this._propMerge('category') }
   getPrice() { return this._propMerge('price') }
   getMemberPrice() { return this._propMerge('member_price') }
+  getMaxSize() { return this._propMerge('max_size') }
   getExtBookUrl() { return this._propMerge('ext_book_url') }
   getExtMemberDiscountCode() { return this._propMerge('ext_member_discount_code') }
-  getMaxSize() { return this._propMerge('max_size') }
 
   getStart() {
     return moment(this._propMerge('start')).format('YYYY-MM-DD HH:mm:ss')
