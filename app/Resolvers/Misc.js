@@ -5,6 +5,7 @@ const Mailchimp = use('TK/Mailchimp')
 const CalendarAPI = use('TK/GoogleCalendarAPI')
 const CalendarEvent = use('App/Models/CalendarEvent')
 const CalendarEventMaster = use('App/Models/CalendarEventMaster')
+const ClassInterest = use('App/Models/ClassInterest')
 const Product = use('App/Models/Product')
 const CouponToken = use('App/Models/CouponToken')
 const KV = use('TK/KeyVal')
@@ -20,13 +21,29 @@ module.exports = {
       return products.toJSON();
     },
     calendar_event: async (_, { id }, { auth }) => {
-      const user = await Auth.getUser(auth)
-      const event = await CalendarEvent.find(id)
+      const event = await CalendarEvent.findOrFail(id)
       await event.load_master()
+
+      const user = await Auth.getUser(auth)
       if (!(user && (user.is_member || user.has_free_membership()))) {
         event.ext_member_discount_code = ''
       }
+
       return event.toJSON()
+    },
+    calendar_master: async (_, { id, slug }, { auth }) => {
+      if (!(id || slug)) return new GraphQLError('One of id, slug is required')
+
+      let master
+      if (id) master = await CalendarEventMaster.findOrFail(id)
+      if (!id && slug) master = await CalendarEventMaster.findByOrFail('slug', slug)
+
+      const user = await Auth.getUser(auth)
+      if (!(user && (user.is_member || user.has_free_membership()))) {
+        master.ext_member_discount_code = ''
+      }
+      await master.load_events()
+      return master.toJSON()
     },
     calendar_events: async (_, {}, { auth }) => {
       const user = await Auth.getUser(auth)
@@ -35,7 +52,7 @@ module.exports = {
       const default_master_id = Config.get('app.default_event_master_id')
 
       for (let n = 0; n < events.rows.length; n++) {
-        const id = events.rows[n].calendar_event_master_id || default_master_id
+        const id = events.rows[n].master_id || default_master_id
         const master = masters.rows.filter(m => m.id === id)
         events.rows[n].master = master[0]
       }
@@ -47,6 +64,18 @@ module.exports = {
         })
       }
       return events
+    },
+    calendar_event_masters: async (_, {}, { auth }) => {
+      const user = await Auth.getUser(auth)
+      let masters = await CalendarEventMaster.all()
+      masters = masters.toJSON()
+      if (!(user && (user.is_member || user.has_free_membership()))) {
+        masters = masters.map((e) => {
+          e.ext_member_discount_code = ''
+          return e
+        })
+      }
+      return masters
     },
     google_calendar_events: async () => {
       try {
@@ -195,6 +224,12 @@ module.exports = {
       await coupon.save()
 
       return { status: 'OK', type: coupon.type }
+    },
+
+    class_interest: async (_, { email, master_id }, {}) => {
+      const master = await CalendarEventMaster.find(master_id)
+      await ClassInterest.create({ email, master_id, class: master.title })
+      return 'OK'
     },
   },
 }
