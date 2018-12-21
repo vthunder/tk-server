@@ -8,7 +8,6 @@ class CalendarEventsSchema extends Schema {
       table.increments()
       table.string('status').defaultTo('open').notNullable()
       table.string('sku_id')
-      table.string('member_sku_id')
       table.string('member_discount_id')
       table.string('title', 254)
       table.string('slug', 254)

@@ -120,7 +120,6 @@ module.exports = {
         duration: event_data.duration,
         description: event_data.description,
         sku_id: event_data.sku_id,
-        member_sku_id: event_data.member_sku_id,
       })
       return 'OK'
     },

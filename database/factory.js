@@ -31,7 +31,6 @@ Factory.blueprint('App/Models/CalendarEventMaster', (faker) => {
     description: faker.paragraph(),
     category: faker.pickone(['class', 'meetup', 'talk', 'private']),
     sku_id: 'sku_DjaxIRazOp3agh',
-    member_sku_id: 'sku_DjbEtpUSnstoeS',
     price: faker.pickone([7500, 10000, 12500]),
     member_price: faker.pickone([5500, 8000, 10500]),
   };
@@ -49,7 +48,6 @@ Factory.blueprint('App/Models/CalendarEvent', (faker) => {
     description: faker.paragraph(),
     category: faker.pickone(['class', 'meetup', 'talk', 'private']),
     sku_id: 'sku_DjaxIRazOp3agh',
-    member_sku_id: 'sku_DjbEtpUSnstoeS',
     price: faker.pickone([7500, 10000, 12500]),
     member_price: faker.pickone([5500, 8000, 10500]),
   };
