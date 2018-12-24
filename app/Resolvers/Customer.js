@@ -183,7 +183,12 @@ module.exports = {
           const sku = await Stripe.skus.retrieve(i.sku)
           const product = await Stripe.products.retrieve(sku.product)
           if (member && product.metadata.member_discount) {
-            discounts += product.metadata.member_discount * i.quantity
+            if (product.metadata.event_id) {
+              // max 1x discount per event
+              discounts += product.metadata.member_discount
+            } else {
+              discounts += product.metadata.member_discount * i.quantity
+            }
           }
         }
 
