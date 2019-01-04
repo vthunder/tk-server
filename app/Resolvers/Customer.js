@@ -185,9 +185,9 @@ module.exports = {
           if (member && product.metadata.member_discount) {
             if (product.metadata.event_id) {
               // max 1x discount per event
-              discounts += product.metadata.member_discount
+              discounts += parseInt(product.metadata.member_discount, 10)
             } else {
-              discounts += product.metadata.member_discount * i.quantity
+              discounts += parseInt(product.metadata.member_discount, 10) * i.quantity
             }
           }
         }
