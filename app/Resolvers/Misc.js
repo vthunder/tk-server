@@ -187,7 +187,7 @@ module.exports = {
       if (coupon.status !== 'new') return 'Coupon already used'
 
       // 1 month of membership
-      if (coupon.type.match(/(staff|ks_month|ks_monthonly)/)) {
+      if (coupon.type.match(/(staff|month|ks_month|ks_monthonly)/)) {
         await user.give_free_membership('month', coupon.type)
       }
 
