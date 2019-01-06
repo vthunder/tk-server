@@ -232,29 +232,32 @@ module.exports = {
               units = units * skuObj.attributes['bundled-units']
             }
 
-            // FIXME: section below doesn't support purchases without signing in
             const prodObj = await Stripe.products.retrieve(skuObj.product)
             if (prodObj.name === 'Day Pass') {
               for (let n = 0; n < units; n++) {
-                await Pass.create({
+                const passOpts = {
                   token: Token.generate(),
                   order_id: orderObj.id,
-                  user_id: user.id,
-                })
+                }
+                if (email) passOpts.email = email
+                if (user) passOpts.user_id = user.id
+                await Pass.create(passOpts)
               }
             } else if (prodObj.metadata.event_id) {
               for (let n = 0; n < units; n++) {
-                await Booking.create({
-                  user_id: user.id,
+                const bookingOpts = {
                   calendar_event_id: prodObj.metadata.event_id,
-                })
+                }
+                if (email) bookingOpts.email = email
+                if (user) bookingOpts.user_id = user.id
+                await Booking.create(bookingOpts)
               }
               await Mail.send(
                 'emails.event_booked',
                 { user, product: prodObj, units },
                 (message) => {
                   message
-                    .to(user.email)
+                    .to(email)
                     .from('hello@tinkerkitchen.org')
                     .subject('Your Tinker Kitchen Event Booking')
                 })
