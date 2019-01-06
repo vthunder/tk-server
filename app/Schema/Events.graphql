@@ -17,8 +17,10 @@ type Event {
   price: Int
   member_price: Int
   sku_id: String
+  ext_book_text: String
   ext_book_url: String
   ext_member_discount_code: String
+  show_interested: Boolean
 }
 
 type EventMaster {
@@ -34,8 +36,10 @@ type EventMaster {
   price: Int
   member_price: Int
   max_size: Int
+  ext_book_text: String
   ext_book_url: String
   ext_member_discount_code: String
+  show_interested: Boolean
   events: [Event]
 }
 

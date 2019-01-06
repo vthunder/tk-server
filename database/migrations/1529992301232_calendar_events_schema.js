@@ -19,8 +19,10 @@ class CalendarEventsSchema extends Schema {
       table.string('category', 80) // class, meetup, talk, private
       table.integer('price')
       table.integer('member_price')
+      table.string('ext_book_text')
       table.string('ext_book_url')
       table.string('ext_member_discount_code')
+      table.boolean('show_interested').defaultsTo(true)
       table.integer('max_size')
       table.timestamps()
     })
