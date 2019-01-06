@@ -11,6 +11,7 @@ class PassesSchema extends Schema {
       table.string('order_id') // Stripe object ID
       table.integer('user_id').unsigned().index()
       table.foreign('user_id').references('id').on('users').onDelete('cascade')
+      table.string('email')
       table.string('status').defaultsTo('new') // 'used' once consumed
       table.timestamps()
     })
