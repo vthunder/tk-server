@@ -21,6 +21,8 @@ type Event {
   ext_book_url: String
   ext_member_discount_code: String
   show_interested: Boolean
+  sidebar_pre_text: String
+  sidebar_post_text: String
 }
 
 type EventMaster {
@@ -40,6 +42,8 @@ type EventMaster {
   ext_book_url: String
   ext_member_discount_code: String
   show_interested: Boolean
+  sidebar_pre_text: String
+  sidebar_post_text: String
   events: [Event]
 }
 

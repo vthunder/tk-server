@@ -21,6 +21,8 @@ class CalendarEventMastersSchema extends Schema {
       table.string('ext_book_text')
       table.string('ext_book_url')
       table.string('ext_member_discount_code')
+      table.text('sidebar_pre_text')
+      table.text('sidebar_post_text')
       table.boolean('show_interested').defaultsTo(true)
       table.timestamps()
     })
