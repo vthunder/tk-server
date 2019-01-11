@@ -6,6 +6,7 @@ const GraphQLError = use('Adonis/Addons/GraphQLError')
 const Pass = use('App/Models/Pass')
 const Booking = use('App/Models/Booking')
 const CouponToken = use('App/Models/CouponToken')
+const Coupon = use('App/Models/Coupon')
 const Token = use('TK/Token')
 const Stripe = use('TK/Stripe')
 const KV = use('TK/KeyVal')
@@ -162,12 +163,12 @@ module.exports = {
 
       return sub
     },
-    create_order: async (_, { items }, { auth }) => {
+    create_order: async (_, { items, coupon_code }, { auth }) => {
       const user = await Auth.getUser(auth)
       let member = false
-      let discounts = 0
-      let coupon
-
+      let subtotal = 0
+      let member_discounts = 0
+      const discount = { amount: 0, description: '' }
       const order_args = {
         currency: 'usd',
         items: items.map(i => ({ parent: i.sku, quantity: i.quantity }))
@@ -175,32 +176,45 @@ module.exports = {
 
       if (user) {
         await user.stripe_check()
+        if (user.stripe_id) order_args.customer = user.stripe_id
         member = user.is_member || user.has_free_membership()
+      }
 
-        order_args.customer = user.stripe_id
-
-        for (const i of items) {
-          const sku = await Stripe.skus.retrieve(i.sku)
+      for (const i of items) {
+        const sku = await Stripe.skus.retrieve(i.sku)
+        subtotal += sku.price * i.quantity
+        if (member) {
           const product = await Stripe.products.retrieve(sku.product)
-          if (member && product.metadata.member_discount) {
+          if (product.metadata.member_discount) {
             if (product.metadata.event_id) {
               // max 1x discount per event
-              discounts += parseInt(product.metadata.member_discount, 10)
+              member_discounts += parseInt(product.metadata.member_discount, 10)
             } else {
-              discounts += parseInt(product.metadata.member_discount, 10) * i.quantity
+              member_discounts += parseInt(product.metadata.member_discount, 10) * i.quantity
             }
           }
         }
+      }
+      if (coupon_code) {
+        const tk_coupon = await Coupon.findBy('code', coupon_code)
+        discount.amount = await tk_coupon.calculateAmount(subtotal)
+        discount.description = tk_coupon.name
+      }
 
-        if (discounts) {
-          coupon = await Stripe.coupons.create({
-            amount_off: discounts,
-            currency: 'usd',
-            duration: 'once',
-            name: 'Member discounts',
-          })
-          order_args.coupon = coupon.id
-        }
+      if (member_discounts) {
+        discount.amount += member_discounts
+        if (coupon_code) discount.description = `Member discounts + coupon: ${discount.description}`
+        else discount.description = 'Member discounts'
+      }
+
+      if (discount.amount) {
+        const coupon = await Stripe.coupons.create({
+          amount_off: discount.amount,
+          currency: 'usd',
+          duration: 'once',
+          name: discount.description,
+        })
+        order_args.coupon = coupon.id
       }
 
       const order = await Stripe.orders.create(order_args)

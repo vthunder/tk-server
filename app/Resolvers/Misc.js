@@ -8,6 +8,7 @@ const CalendarEventMaster = use('App/Models/CalendarEventMaster')
 const ClassInterest = use('App/Models/ClassInterest')
 const Product = use('App/Models/Product')
 const CouponToken = use('App/Models/CouponToken')
+const Coupon = use('App/Models/Coupon')
 const KV = use('TK/KeyVal')
 const Token = use('TK/Token')
 const Mail = use('Mail')
@@ -106,6 +107,12 @@ module.exports = {
             .andWhere('type', '=', 'gift_cert')
       return certs.reduce((acc, c) => acc + c.amount_remaining, 0)
     },
+    get_cart_coupon: async (_, { code }, { auth }) => {
+      const user = await Auth.getUser(auth)
+      const coupon = await Coupon.findBy('code', code)
+      await coupon.checkValidity()
+      return coupon;
+    },
   },
   Mutation: {
     create_calendar_event: async (_, { event_data }, { auth }) => {
@@ -183,8 +190,8 @@ module.exports = {
     use_coupon_token: async (_, { token }, { auth }) => {
       const user = await Auth.requireUser(auth)
       const coupon = await CouponToken.findBy('token', token)
-      if (!coupon) return 'Invalid coupon code'
-      if (coupon.status !== 'new') return 'Coupon already used'
+      if (!coupon) return { status: 'invalid' }
+      if (coupon.status !== 'new') return { status: 'used' }
 
       // 1 month of membership
       if (coupon.type.match(/(staff|month|ks_month|ks_monthonly)/)) {
