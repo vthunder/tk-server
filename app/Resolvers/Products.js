@@ -3,6 +3,7 @@ const Stripe = use('TK/Stripe')
 const Pass = use('App/Models/Pass')
 const KV = use('TK/KeyVal')
 const Config = use('Adonis/Src/Config')
+const Auth = use('TK/Auth')
 
 // note: auth.getUser() implicitly checks Authorization header, throws otherwise
 
@@ -51,8 +52,9 @@ module.exports = {
       }
     },
     user_passes: async (_, { type }, { auth }) => {
-      const user = await auth.getUser()
-      const passes = await user.passes().where('type', type).fetch()
+      const user = await Auth.getUser(auth)
+      if (!user) return []
+      const passes = await user.passes().where('type', (type||'day_pass')).fetch()
       if (!passes) return []
       return passes.toJSON()
     },

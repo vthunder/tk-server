@@ -78,7 +78,7 @@ type Query {
   plan(product: String, nickname: String): Plan
   skus(product: String): [SKU]
   day_pass_skus: DayPassSKUs
-  user_passes(type: String!): [Pass]
+  user_passes(type: String): [Pass]
 
 #  membership_info(type: String): Product
 }
