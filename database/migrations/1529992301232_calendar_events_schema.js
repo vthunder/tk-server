@@ -7,6 +7,7 @@ class CalendarEventsSchema extends Schema {
     this.create('calendar_events', (table) => {
       table.increments()
       table.string('status').defaultTo('open').notNullable()
+      table.boolean('calendar_hide')
       table.string('sku_id')
       table.string('member_discount_id')
       table.string('title', 254)

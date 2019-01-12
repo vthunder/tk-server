@@ -8,6 +8,7 @@ class CalendarEventMastersSchema extends Schema {
       table.increments()
       table.string('sku_id')
       table.boolean('featured').defaultsTo(false)
+      table.boolean('calendar_hide')
       table.string('title', 254).notNullable()
       table.string('slug', 254).notNullable()
       table.string('image_header', 254).defaultsTo('/images/default-class-header.jpg')

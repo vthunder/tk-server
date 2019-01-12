@@ -5,6 +5,7 @@
 type Event {
   id: Int
   master_id: Int
+  calendar_hide: Boolean
   title: String
   slug: String
   image_header: String
@@ -28,6 +29,7 @@ type Event {
 type EventMaster {
   id: Int
   featured: Boolean
+  calendar_hide: Boolean
   title: String
   slug: String
   image_header: String
