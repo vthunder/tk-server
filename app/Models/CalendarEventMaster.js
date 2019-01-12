@@ -17,6 +17,7 @@ class CalendarEventMaster extends Model {
       await e.load_master()
       return {
         id: e.id,
+        status: e.status,
         start: e.getStart(),
         duration: e.getDuration(),
         all_day: e.getAllDay(),

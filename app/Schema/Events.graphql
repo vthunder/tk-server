@@ -4,6 +4,7 @@
 
 type Event {
   id: Int
+  status: String
   master_id: Int
   calendar_hide: Boolean
   title: String
