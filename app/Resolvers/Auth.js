@@ -1,12 +1,14 @@
 const Persona = use('Persona')
 const GraphQLError = use('Adonis/Addons/GraphQLError')
+const Auth = use('TK/Auth')
 
 // note: auth.getUser() implicitly checks Authorization header, throws otherwise
 
 module.exports = {
   Query: {
     me: async (_, args, { auth }) => {
-      const user = await auth.getUser()
+      const user = await Auth.getUser(auth)
+      if (!user) return {}
       await user.stripe_check()
       return user.toJSON()
     },
