@@ -69,6 +69,9 @@ module.exports = {
     calendar_event_masters: async (_, {}, { auth }) => {
       const user = await Auth.getUser(auth)
       let masters = await CalendarEventMaster.all()
+      for (let n = 0; n < masters.rows.length; n++) {
+        await masters.rows[n].load_events()
+      }
       masters = masters.toJSON()
       if (!(user && (user.is_member || user.has_free_membership()))) {
         masters = masters.map((e) => {

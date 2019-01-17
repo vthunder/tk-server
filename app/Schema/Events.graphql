@@ -48,6 +48,7 @@ type EventMaster {
   sidebar_pre_text: String
   sidebar_post_text: String
   events: [Event]
+  next_event: Event
 }
 
 scalar Upload
