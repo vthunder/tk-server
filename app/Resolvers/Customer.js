@@ -49,8 +49,8 @@ module.exports = {
       return customer
     },
     customer_payment_sources: async (_, args, { auth }) => {
-      const user = await Auth.requireUser(auth)
-      if (!user.stripe_id) return []
+      const user = await Auth.getUser(auth)
+      if (!user || !user.stripe_id) return []
       const ret = await Stripe.customers.retrieve(user.stripe_id)
       return ret.sources.data
     },
