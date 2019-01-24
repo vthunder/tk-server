@@ -113,6 +113,7 @@ module.exports = {
     get_cart_coupon: async (_, { code }, { auth }) => {
       const user = await Auth.getUser(auth)
       const coupon = await Coupon.findBy('code', code)
+      if (!coupon) return { valid: false }
       await coupon.checkValidity()
       return coupon;
     },
