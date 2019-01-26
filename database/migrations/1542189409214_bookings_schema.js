@@ -11,6 +11,8 @@ class BookingsSchema extends Schema {
       table.string('email')
       table.integer('calendar_event_id').unsigned().index()
       table.foreign('calendar_event_id').references('id').on('calendar_events').onDelete('cascade')
+      table.string('stripe_sku_id')
+      table.string('stripe_sku_date')
       table.timestamps()
     })
   }

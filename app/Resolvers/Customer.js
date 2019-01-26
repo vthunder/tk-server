@@ -261,6 +261,8 @@ module.exports = {
               for (let n = 0; n < units; n++) {
                 const bookingOpts = {
                   calendar_event_id: prodObj.metadata.event_id,
+                  stripe_sku_id: skuObj.id,
+                  stripe_sku_date: skuObj.attributes.date,
                 }
                 if (email) bookingOpts.email = email
                 if (user) bookingOpts.user_id = user.id
