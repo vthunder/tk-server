@@ -104,7 +104,8 @@ module.exports = {
       }
     },
     gift_certificate_balance: async (_, {}, { auth }) => {
-      const user = await Auth.requireUser(auth)
+      const user = await Auth.getUser(auth)
+      if (!user) return 0
       const certs = await CouponToken.query()
             .where('claimed_by', '=', user.id)
             .andWhere('type', '=', 'gift_cert')
