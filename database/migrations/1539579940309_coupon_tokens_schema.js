@@ -15,6 +15,7 @@ class CouponTokenSchema extends Schema {
       table.integer('amount')
       table.integer('amount_remaining')
       table.string('order_id')
+      table.text('memo')
       table.timestamps()
     })
   }

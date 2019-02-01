@@ -14,6 +14,7 @@ class GiftCertificatesSchema extends Schema {
       table.integer('amount_remaining')
       table.integer('coupon_id')
       table.string('order_id')
+      table.text('memo')
       table.timestamps()
     })
   }

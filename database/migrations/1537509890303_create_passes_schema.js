@@ -13,6 +13,7 @@ class PassesSchema extends Schema {
       table.foreign('user_id').references('id').on('users').onDelete('cascade')
       table.string('email')
       table.string('status').defaultsTo('new') // 'used' once consumed
+      table.text('memo')
       table.timestamps()
     })
   }
