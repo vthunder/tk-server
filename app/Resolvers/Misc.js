@@ -5,6 +5,7 @@ const Mailchimp = use('TK/Mailchimp')
 const CalendarAPI = use('TK/GoogleCalendarAPI')
 const CalendarEvent = use('App/Models/CalendarEvent')
 const CalendarEventMaster = use('App/Models/CalendarEventMaster')
+const CheckInLog = use('App/Models/CheckInLog')
 const ClassInterest = use('App/Models/ClassInterest')
 const Product = use('App/Models/Product')
 const CouponToken = use('App/Models/CouponToken')
@@ -240,6 +241,14 @@ module.exports = {
     class_interest: async (_, { email, master_id }, {}) => {
       const master = await CalendarEventMaster.find(master_id)
       await ClassInterest.create({ email, master_id, class: master.title })
+      return 'OK'
+    },
+
+    check_in_qr_scan: async (_, { qr_data }, {}) => {
+      const last = await CheckInLog.last()
+      console.log(last.created_at)
+      console.log(qr_data)
+      await CheckInLog.create({ qr_data })
       return 'OK'
     },
   },

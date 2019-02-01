@@ -33,4 +33,5 @@ type Mutation {
   create_coupon_token (type: String!, count: Int): [String]
   send_coupon_tokens (type: String!, emails: String!): String
   use_coupon_token (token: String!): CouponStatus
+  check_in_qr_scan (qr_data: String!): String
 }
