@@ -20,6 +20,8 @@ const limiter = new Bottleneck({
   reservoir: 10, // initial value
   reservoirRefreshAmount: 10,
   reservoirRefreshInterval: 60 * 1000, // must be divisible by 250
+  highWater: 0,
+  strategy: Bottleneck.strategy.LEAK,
   maxConcurrent: 1,
   minTime: 333,
 });
@@ -255,12 +257,8 @@ module.exports = {
 
     check_in_qr_scan: async (_, { qr_data }, {}) => {
       return await limiter.schedule(async () => {
-        const last = await CheckInLog.last()
-        if (last && moment().isAfter(moment(last.created_at).add(10, 'seconds'))) {
-          console.log(last.created_at)
-          console.log(qr_data)
-          await CheckInLog.create({ qr_data })
-        }
+        console.log(qr_data)
+        await CheckInLog.create({ qr_data })
         return 'OK'
       });
     },
