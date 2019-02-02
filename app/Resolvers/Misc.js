@@ -1,4 +1,5 @@
 const moment = use('moment')
+const Bottleneck = use('bottleneck')
 const GraphQLError = use('Adonis/Addons/GraphQLError')
 const Config = use('Adonis/Src/Config')
 const Mailchimp = use('TK/Mailchimp')
@@ -14,6 +15,14 @@ const KV = use('TK/KeyVal')
 const Token = use('TK/Token')
 const Mail = use('Mail')
 const Auth = use('TK/Auth')
+
+const limiter = new Bottleneck({
+  reservoir: 10, // initial value
+  reservoirRefreshAmount: 10,
+  reservoirRefreshInterval: 60 * 1000, // must be divisible by 250
+  maxConcurrent: 1,
+  minTime: 333,
+});
 
 module.exports = {
   Query: {
@@ -245,11 +254,15 @@ module.exports = {
     },
 
     check_in_qr_scan: async (_, { qr_data }, {}) => {
-      const last = await CheckInLog.last()
-      console.log(last.created_at)
-      console.log(qr_data)
-      await CheckInLog.create({ qr_data })
-      return 'OK'
+      return await limiter.schedule(() => {
+        const last = await CheckInLog.last()
+        if (last && moment().isAfter(moment(last.created_at).add(10, 'seconds'))) {
+          console.log(last.created_at)
+          console.log(qr_data)
+          await CheckInLog.create({ qr_data })
+        }
+        return 'OK'
+      });
     },
   },
 }
