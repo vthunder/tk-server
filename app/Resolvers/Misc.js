@@ -254,7 +254,7 @@ module.exports = {
     },
 
     check_in_qr_scan: async (_, { qr_data }, {}) => {
-      return await limiter.schedule(() => {
+      return await limiter.schedule(async () => {
         const last = await CheckInLog.last()
         if (last && moment().isAfter(moment(last.created_at).add(10, 'seconds'))) {
           console.log(last.created_at)
