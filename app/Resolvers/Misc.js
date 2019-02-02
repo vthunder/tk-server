@@ -130,6 +130,11 @@ module.exports = {
       await coupon.checkValidity()
       return coupon;
     },
+    latest_qr_scan_info: async (_, {}, {}) => {
+      const checkin = await CheckInLog.last()
+      if (!checkin) return { valid: false, type: '' }
+      return { valid: true, type: checkin.qr_data }
+    },
   },
   Mutation: {
     create_calendar_event: async (_, { event_data }, { auth }) => {

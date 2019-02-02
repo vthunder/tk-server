@@ -18,6 +18,11 @@ type CouponStatus {
   type: String
 }
 
+type QrScanInfo {
+  status: String
+  type: String
+}
+
 #
 # Queries & Mutations
 #
@@ -26,6 +31,7 @@ type Query {
   ping: String
   gift_certificate_balance: Int
   get_cart_coupon (code: String!): CartCoupon
+  latest_qr_scan_info: QrScanInfo
 }
 
 type Mutation {
