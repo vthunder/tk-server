@@ -34,6 +34,7 @@
     "apollo-link-context": "^1.0.8",
     "bottleneck": "^2.15.3",
     "graphql": "^0.13.2",
+    "graphql-subscriptions": "^1.0.0",
     "graphql-tag": "^2.9.2",
     "lodash": "^4.17.10",
     "mailchimp-api-v3": "^1.12.0",
@@ -43,7 +44,8 @@
     "node-google-calendar": "^1.1.1",
     "rand-token": "^0.4.0",
     "string-mask": "^0.3.0",
-    "stripe": "^6.8.0"
+    "stripe": "^6.8.0",
+    "subscriptions-transport-ws": "^0.9.15"
   },
   "devDependencies": {},
   "autoload": {

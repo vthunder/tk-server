@@ -15,6 +15,7 @@ const KV = use('TK/KeyVal')
 const Token = use('TK/Token')
 const Mail = use('Mail')
 const Auth = use('TK/Auth')
+const PubSub = use('TK/PubSub')
 
 const limiter = new Bottleneck({
   reservoir: 10, // initial value
@@ -264,8 +265,14 @@ module.exports = {
       return await limiter.schedule(async () => {
         console.log(qr_data)
         await CheckInLog.create({ qr_data })
+        PubSub.publish('QR_SCANNED', { new_qr_scan: { status: 'foo', type: qr_data}});
         return 'OK'
       });
+    },
+  },
+  Subscription: {
+    new_qr_scan: {
+      subscribe: () => PubSub.asyncIterator('QR_SCANNED'),
     },
   },
 }

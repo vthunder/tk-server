@@ -31,6 +31,7 @@ const providers = [
   path.join(__dirname, '..', 'providers', 'KeyValProvider'),
   path.join(__dirname, '..', 'providers', 'GoogleAPIProvider'),
   path.join(__dirname, '..', 'providers', 'AuthProvider'),
+  path.join(__dirname, '..', 'providers', 'PubSubProvider'),
 ]
 
 /*

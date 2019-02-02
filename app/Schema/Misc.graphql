@@ -41,3 +41,7 @@ type Mutation {
   use_coupon_token (token: String!): CouponStatus
   check_in_qr_scan (qr_data: String!): String
 }
+
+type Subscription {
+    new_qr_scan: QrScanInfo
+}
