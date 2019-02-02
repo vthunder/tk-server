@@ -265,13 +265,13 @@ module.exports = {
     check_in_qr_scan: async (_, { qr_data }, {}) => {
       return await limiter.schedule(async () => {
         const found = qr_data.match('https:\/\/tinkerkitchen.org\/qr\/(user|token)/(.*)$')
-        if (found[1] === 'user') {
-          const user = await User.findBy({found[2]})
+        if (found && found[1] === 'user') {
+          const user = await User.findBy('qr_code', found[2])
           PubSub.publish('QR_SCANNED', {
             new_qr_scan: { type: 'user', name: user.name, email: user.email }
           });
-        } else if (found[1] === 'token') {
-          const coupon = await CouponToken.findBy({token: found[2]})
+        } else if (found && found[1] === 'token') {
+          const coupon = await CouponToken.findBy('token', found[2])
           PubSub.publish('QR_SCANNED', {
             new_qr_scan: { type: coupon.type, status: coupon.status }
           });
