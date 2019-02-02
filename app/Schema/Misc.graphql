@@ -18,9 +18,15 @@ type CouponStatus {
   type: String
 }
 
+# type: user, token
+# name: [type: user] user name
+# email: [type: user] user email
+# status: [type: token] new, used
 type QrScanInfo {
-  status: String
   type: String
+  name: String
+  email: String
+  status: String
 }
 
 #

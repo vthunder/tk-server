@@ -17,6 +17,7 @@ class UserSchema extends Schema {
       table.date('free_membership_start')
       table.date('free_membership_end')
       table.string('free_membership_type').defaultTo('')
+      table.string('qr_token')
       table.timestamps()
     })
   }
