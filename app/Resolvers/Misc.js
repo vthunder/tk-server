@@ -11,6 +11,7 @@ const ClassInterest = use('App/Models/ClassInterest')
 const Product = use('App/Models/Product')
 const CouponToken = use('App/Models/CouponToken')
 const Coupon = use('App/Models/Coupon')
+const User = use('App/Models/User')
 const KV = use('TK/KeyVal')
 const Token = use('TK/Token')
 const Mail = use('Mail')
@@ -263,10 +264,14 @@ module.exports = {
 
     check_in_qr_scan: async (_, { qr_data }, {}) => {
       return await limiter.schedule(async () => {
-        console.log(qr_data)
-        await CheckInLog.create({ qr_data })
-        PubSub.publish('QR_SCANNED', { new_qr_scan: { status: 'foo', type: qr_data}});
-        return 'OK'
+        if (qr_data.startsWith('https://tinkerkitchen.org/qr/')) {
+          const qr_token = qr_data.substring(29)
+          console.log(qr_token)
+          const user = await User.findBy({qr_token})
+          console.log(user)
+          PubSub.publish('QR_SCANNED', { new_qr_scan: { status: 'foo', type: user.name}});
+          return 'OK'
+        }
       });
     },
   },
