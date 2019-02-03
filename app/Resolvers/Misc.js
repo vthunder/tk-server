@@ -265,6 +265,7 @@ module.exports = {
 
     check_in_qr_scan: async (_, { qr_data }, {}) => {
       return await limiter.schedule(async () => {
+        CheckInLog.create({ qr_data })
         const qr_info = await QR.parse(User, CouponToken, qr_data)
         PubSub.publish('QR_SCANNED', { new_qr_scan: qr_info })
       });
