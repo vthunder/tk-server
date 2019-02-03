@@ -27,6 +27,7 @@ type QrScanInfo {
   name: String
   email: String
   status: String
+  agreed_terms: String
 }
 
 #
@@ -37,7 +38,7 @@ type Query {
   ping: String
   gift_certificate_balance: Int
   get_cart_coupon (code: String!): CartCoupon
-  latest_qr_scan_info: QrScanInfo
+  get_latest_qr_scan: QrScanInfo
 }
 
 type Mutation {
