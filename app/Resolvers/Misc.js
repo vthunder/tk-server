@@ -17,6 +17,7 @@ const Token = use('TK/Token')
 const Mail = use('Mail')
 const Auth = use('TK/Auth')
 const PubSub = use('TK/PubSub')
+const QR = use('TK/QR')
 
 const limiter = new Bottleneck({
   reservoir: 10, // initial value
@@ -132,10 +133,10 @@ module.exports = {
       await coupon.checkValidity()
       return coupon;
     },
-    latest_qr_scan_info: async (_, {}, {}) => {
+    get_latest_qr_scan: async (_, {}, {}) => {
       const checkin = await CheckInLog.last()
-      if (!checkin) return { valid: false, type: '' }
-      return { valid: true, type: checkin.qr_data }
+      const qr_info = await QR.parse(User, CouponToken, checkin.qr_data)
+      return qr_info
     },
   },
   Mutation: {
@@ -264,18 +265,8 @@ module.exports = {
 
     check_in_qr_scan: async (_, { qr_data }, {}) => {
       return await limiter.schedule(async () => {
-        const found = qr_data.match('https:\/\/tinkerkitchen.org\/qr\/(user|token)/(.*)$')
-        if (found && found[1] === 'user') {
-          const user = await User.findBy('qr_token', found[2])
-          PubSub.publish('QR_SCANNED', {
-            new_qr_scan: { type: 'user', name: user.name, email: user.email }
-          });
-        } else if (found && found[1] === 'token') {
-          const coupon = await CouponToken.findBy('token', found[2])
-          PubSub.publish('QR_SCANNED', {
-            new_qr_scan: { type: coupon.type, status: coupon.status }
-          });
-        }
+        const qr_info = await QR.parse(User, CouponToken, qr_data)
+        PubSub.publish('QR_SCANNED', { new_qr_scan: qr_info })
       });
     },
   },
