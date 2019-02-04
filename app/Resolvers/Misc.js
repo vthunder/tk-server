@@ -135,8 +135,7 @@ module.exports = {
     },
     get_latest_qr_scan: async (_, {}, {}) => {
       const checkin = await CheckInLog.last()
-      const qr_info = await QR.parse(User, CouponToken, checkin.qr_data)
-      return qr_info
+      return await QR.parse(User, CouponToken, checkin.qr_data)
     },
   },
   Mutation: {
