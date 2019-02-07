@@ -171,7 +171,7 @@ module.exports = {
       const user = await Auth.requireUser(auth)
       const perms = await user.getPermissions()
       if (!perms.includes('create_coupon_tokens')) return new GraphQLError('Permission denied')
-      if (!type.match(/(staff|ks_daypasses|ks_month|ks_year|ks_class|daypass)/))
+      if (!type.match(/(staff|ks_daypasses|ks_month|ks_year|ks_class|daypass|month)/))
         return 'Bad coupon type'
 
       return [...Array(count)].map(async (_, i) => {
@@ -186,7 +186,7 @@ module.exports = {
       const user = await Auth.requireUser(auth)
       const perms = await user.getPermissions()
       if (!perms.includes('create_coupon_tokens')) return new GraphQLError('Permission denied')
-      if (!type.match(/(staff|ks_daypasses|ks_month|ks_year|ks_class)/))
+      if (!type.match(/(staff|ks_daypasses|ks_month|ks_year|ks_class|month)/))
         return 'Bad coupon type'
 
       emails.split(/[ ,]+/).map(async (email) => {
