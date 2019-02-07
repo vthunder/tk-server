@@ -13,6 +13,7 @@ class BookingsSchema extends Schema {
       table.foreign('calendar_event_id').references('id').on('calendar_events').onDelete('cascade')
       table.string('stripe_sku_id')
       table.string('stripe_sku_date')
+      table.text('memo')
       table.timestamps()
     })
   }
