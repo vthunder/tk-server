@@ -17,7 +17,8 @@ class User extends Model {
 
   static get computed() {
     return ['has_stripe_customer', 'has_previous_stripe_ids',
-            'is_free_member', 'free_member_until', 'free_membership_type']
+            'is_free_member', 'free_member_until', 'free_membership_type',
+            'is_member_eq']
   }
 
   static get traits() {
@@ -60,6 +61,8 @@ class User extends Model {
   }
 
   getIsFreeMember() { return this.has_free_membership() }
+
+  getIsMemberEq() { return this.is_member || this.has_free_membership() }
 
   getFreeMemberUntil() { return moment(this.free_membership_end).format('X') }
 
