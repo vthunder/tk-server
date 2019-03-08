@@ -191,7 +191,7 @@ Cooks: ${data.cooks}
           .subject('New Event Hold')
       })
 
-      if (user) {
+      if (email) {
         await Mail.send('emails.event_hold_created_customer', { data }, (message) => {
           message
             .to(email)
