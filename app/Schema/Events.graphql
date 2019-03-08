@@ -65,6 +65,18 @@ input EventInput {
   image_header_file: Upload
 }
 
+input HoldInput {
+  category: String
+  date: String
+  time: String
+  duration: Int
+  party_diners: Int
+  party_cooks: Int
+  size: Int
+  name: String
+  email: String
+}
+
 #
 # Queries & Mutations
 #
@@ -79,5 +91,6 @@ type Query {
 
 type Mutation {
   create_calendar_event(event_data: EventInput!): String
+  create_calendar_hold(event_data: HoldInput!): String
   class_interest(email: String!, master_id: Int!): String
 }
