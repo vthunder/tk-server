@@ -154,6 +154,54 @@ module.exports = {
       })
       return 'OK'
     },
+    create_calendar_hold: async (_, { event_data }, { auth }) => {
+      const user = await Auth.getUser(auth)
+      let loggedInEmail = user ? user.email : null
+      let email = event_data.email || loggedInEmail
+
+      const data = {
+        datetime: `${event_data.date} @ ${event_data.time} (for 5h)`,
+        category: event_data.category,
+        contact: `${event_data.name} <${email}>`,
+        size: event_data.size,
+        diners: event_data.diners,
+        cooks: event_data.cooks,
+      };
+      const event = await CalendarEvent.create({
+        title: 'Temp Hold',
+        category: 'held',
+        start: event_data.date + ' ' + event_data.time,
+        duration: event_data.duration,
+        memo: `Event Hold
+
+Type: ${data.category}
+On: ${data.datetime}
+Contact: ${data.contact}
+
+Size: ${data.size}
+Diners: ${data.diners}
+Cooks: ${data.cooks}
+`,
+      })
+
+      await Mail.send('emails.event_hold_created_admin', { data }, (message) => {
+        message
+          .to('hello@tinkerkitchen.org')
+          .from('hello@tinkerkitchen.org')
+          .subject('New Event Hold')
+      })
+
+      if (user) {
+        await Mail.send('emails.event_hold_created_customer', { data }, (message) => {
+          message
+            .to(email)
+            .from('hello@tinkerkitchen.org')
+            .subject('Event Hold Added')
+        })
+      }
+
+      return 'OK'
+    },
     mailing_list_signup: async (_, { name, email, list }) => {
       list = Config.get('mail.mailchimp.defaultList', list)
       const listId = Config.get(`mail.mailchimp.listIds.${list}`)
