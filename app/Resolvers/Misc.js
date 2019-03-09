@@ -7,6 +7,7 @@ const CalendarAPI = use('TK/GoogleCalendarAPI')
 const CalendarEvent = use('App/Models/CalendarEvent')
 const CalendarEventMaster = use('App/Models/CalendarEventMaster')
 const CheckInLog = use('App/Models/CheckInLog')
+const UserAgreedTerms = use('App/Models/UserAgreedTerms')
 const ClassInterest = use('App/Models/ClassInterest')
 const Product = use('App/Models/Product')
 const CouponToken = use('App/Models/CouponToken')
@@ -316,6 +317,21 @@ Cooks: ${data.cooks}
         const qr_info = await QR.parse(User, CouponToken, qr_data)
         PubSub.publish('QR_SCANNED', { new_qr_scan: qr_info })
       });
+    },
+    checkin: async (_, { data }, {}) => {
+      await CheckInLog.create({
+        name: data.name,
+        email: data.email,
+        subscribe_to_list: data.subscribe_to_list,
+      });
+      for (let t of data.agreed_terms) {
+        await UserAgreedTerms.create({
+          name: data.name,
+          email: data.email,
+          terms_name: t.terms_name,
+          agreed_timestamp: t.agreed_timestamp,
+        });
+      }
     },
   },
   Subscription: {
