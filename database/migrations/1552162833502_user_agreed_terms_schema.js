@@ -8,7 +8,7 @@ class UserAgreedTermsSchema extends Schema {
       table.increments()
       table.string('name')
       table.string('email')
-      table.int('user_id')
+      table.integer('user_id')
       table.string('terms_name')
       table.datetime('agreed_timestamp')
       table.timestamps()
