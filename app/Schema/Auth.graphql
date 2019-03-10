@@ -14,7 +14,7 @@ type User {
   free_membership_type: String
   has_stripe_customer: Boolean
   has_previous_stripe_ids: Boolean
-#  membership_sub: Subscription
+  in_mailing_list: Boolean
 }
 
 type JWT {
