@@ -1,0 +1,29 @@
+<p>Hi {{ data.name }}, thanks for coming to Tinker Kitchen!</p>
+
+<p>Here are some useful links to help you with your cooking
+adventures:</p>
+
+<ul>
+<li>Our Website is at <a
+href="https://tinkerkitchen.org/"> https://tinkerkitchen.org/</a></li>
+
+<li>Our user forums, where you can post your projects and share tips
+with other users are at <a href="https://spectrum.chat/tinker-kitchen/">
+https://spectrum.chat/tinker-kitchen/</a></li>
+
+<li>And our wiki has a listing of all our equipment, with a handy map
+to find it: <a href="https://wiki.tinkerkitchen.org/equipment">
+https://wiki.tinkerkitchen.org/equipment</a></li>
+</ul>
+
+<p>We also wanted to remind you of the legal terms you agreed to, for
+your reference:</p>
+
+<ul>
+@each(t in data.agreed_terms)
+<li><a href="https://tinkerkitchen.org/files/{{ t.terms_name }}">{{ t.terms_name }}</a></li>
+@endeach
+</ul>
+
+<p>Happy cooking!</p>
+<p>- The Tinker Kitchen crew</p>
