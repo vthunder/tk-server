@@ -28,14 +28,14 @@ const limiter = new Bottleneck({
   strategy: Bottleneck.strategy.LEAK,
   maxConcurrent: 1,
   minTime: 333,
-});
+})
 
 module.exports = {
   Query: {
     ping: () => { return "pong" },
     products: async () => {
-      const products = await Product.all();
-      return products.toJSON();
+      const products = await Product.all()
+      return products.toJSON()
     },
     calendar_event: async (_, { id }, { auth }) => {
       const event = await CalendarEvent.findOrFail(id)
@@ -132,11 +132,25 @@ module.exports = {
       const coupon = await Coupon.findBy('code', code)
       if (!coupon) return { valid: false }
       await coupon.checkValidity()
-      return coupon;
+      return coupon
     },
     get_latest_qr_scan: async (_, {}, {}) => {
       const checkin = await CheckInLog.last()
       return await QR.parse(User, CouponToken, checkin.qr_data)
+    },
+    get_legal_terms: async (_, { name, email }, {}) => {
+      // TODO: Configure/augment this list by letting user pick which
+      // event they are checking in for
+      const required = [
+        'Liability_Waiver_and_Media_Release_2018_11_10.pdf',
+        'Kitchentown Tasting Event Agreement - rbc 2019-03-04.pdf',
+      ]
+      let terms = []
+      for (let t of required) {
+        const ret = await UserAgreedTerm.query().where({ name, email, terms_name: t })
+        if (!ret.length) terms.push(t)
+      }
+      return terms
     },
   },
   Mutation: {
@@ -167,7 +181,7 @@ module.exports = {
         size: event_data.size,
         diners: event_data.diners,
         cooks: event_data.cooks,
-      };
+      }
       const event = await CalendarEvent.create({
         title: 'Temp Hold',
         category: 'held',
@@ -212,7 +226,7 @@ Cooks: ${data.cooks}
           status: 'pending',
         })
       } catch (e) {
-        throw new GraphQLError(e.title);
+        throw new GraphQLError(e.title)
       }
       return 'OK'
     },
@@ -316,22 +330,28 @@ Cooks: ${data.cooks}
         CheckInLog.create({ qr_data })
         const qr_info = await QR.parse(User, CouponToken, qr_data)
         PubSub.publish('QR_SCANNED', { new_qr_scan: qr_info })
-      });
+      })
     },
     checkin: async (_, { data }, {}) => {
       await CheckInLog.create({
         name: data.name,
         email: data.email,
         subscribe_to_list: data.subscribe_to_list,
-      });
+      })
       for (let t of data.agreed_terms) {
-        await UserAgreedTerms.create({
+        await UserAgreedTerm.create({
           name: data.name,
           email: data.email,
           terms_name: t.terms_name,
           agreed_timestamp: t.agreed_timestamp,
-        });
+        })
       }
+      await Mail.send('emails.check_in', { data }, (message) => {
+        message
+          .to(data.email)
+          .from('hello@tinkerkitchen.org')
+          .subject('You checked in at Tinker Kitchen')
+      })
     },
   },
   Subscription: {
