@@ -30,14 +30,14 @@ type QrScanInfo {
   agreed_terms: String
 }
 
-type CheckinInput {
+input CheckinInput {
   name: String
   email: String
   subscribe_to_list: Boolean
   agreed_terms: [AgreedToTermsInput]
 }
 
-type AgreedToTermsInput {
+input AgreedToTermsInput {
   terms_name: String
   agreed_timestamp: String
 }
@@ -51,6 +51,7 @@ type Query {
   gift_certificate_balance: Int
   get_cart_coupon (code: String!): CartCoupon
   get_latest_qr_scan: QrScanInfo
+  get_legal_terms (name: String!, email: String!): [String]
 }
 
 type Mutation {
@@ -59,7 +60,7 @@ type Mutation {
   send_coupon_tokens (type: String!, emails: String!): String
   use_coupon_token (token: String!): CouponStatus
   check_in_qr_scan (qr_data: String!): String
-  checkin(data: CheckinInput!): String
+  checkin (data: CheckinInput!): String
 }
 
 type Subscription {
