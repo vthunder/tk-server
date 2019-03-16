@@ -36,7 +36,7 @@ class CalendarEvent extends Model {
   getExtMemberDiscountCode() { return this._propMerge('ext_member_discount_code') }
 
   getStart() {
-    return moment(this._propMerge('start')).format('YYYY-MM-DD HH:mm:ss')
+    return moment(this._propMerge('start')).format()
   }
 
   getEnd() {
@@ -45,7 +45,7 @@ class CalendarEvent extends Model {
     } else {
       return moment(this._propMerge('start'))
         .add(this._propMerge('duration'), 'hours')
-        .format('YYYY-MM-DD HH:mm:ss')
+        .format()
     }
   }
 }
