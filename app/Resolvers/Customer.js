@@ -235,6 +235,11 @@ module.exports = {
         orderObj = await Stripe.orders.pay(order, { source, email })
       }
 
+      // Hack to add an email to the charge itself, triggering a receipt to be sent
+      await Stripe.charges
+        .update(orderObj.charge,
+                { receipt_email: user? user.email : email })
+
       if (orderObj.status === 'paid') {
         orderObj.items
           .filter(i => i.type === 'sku')
