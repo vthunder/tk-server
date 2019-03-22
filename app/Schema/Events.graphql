@@ -75,6 +75,7 @@ input HoldInput {
   size: Int
   name: String
   email: String
+  class_info: String
 }
 
 #

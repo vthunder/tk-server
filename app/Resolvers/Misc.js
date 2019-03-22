@@ -181,6 +181,7 @@ module.exports = {
         size: event_data.size,
         diners: event_data.diners,
         cooks: event_data.cooks,
+        class_info: event_data.class_info,
       }
       const event = await CalendarEvent.create({
         title: 'Temp Hold',
@@ -196,6 +197,8 @@ Contact: ${data.contact}
 Size: ${data.size}
 Diners: ${data.diners}
 Cooks: ${data.cooks}
+
+ClassInfo: ${data.class_info}
 `,
       })
 
