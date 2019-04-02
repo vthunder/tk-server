@@ -143,7 +143,7 @@ module.exports = {
       // event they are checking in for
       const required = [
         'Liability_Waiver_and_Media_Release_2018_11_10.pdf',
-        'Kitchentown Tasting Event Agreement - rbc 2019-03-04.pdf',
+        // 'Kitchentown Tasting Event Agreement - rbc 2019-03-04.pdf',
       ]
       let terms = []
       for (let t of required) {
