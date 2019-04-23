@@ -9,7 +9,7 @@ const CalendarEventMaster = use('App/Models/CalendarEventMaster')
 const CheckInLog = use('App/Models/CheckInLog')
 const UserAgreedTerm = use('App/Models/UserAgreedTerm')
 const ClassInterest = use('App/Models/ClassInterest')
-const TastingInfo = use('App/Models/TastingInfo')
+const TastingStationInfo = use('App/Models/TastingStationInfo')
 const Product = use('App/Models/Product')
 const CouponToken = use('App/Models/CouponToken')
 const Coupon = use('App/Models/Coupon')
@@ -127,7 +127,7 @@ module.exports = {
             .where('claimed_by', '=', user.id)
             .andWhere('type', '=', 'gift_cert')
             .fetch()
-      return certs.reduce((acc, c) => acc + c.amount_remaining, 0)
+      return certs.rows.reduce((acc, c) => acc + c.amount_remaining, 0)
     },
     get_cart_coupon: async (_, { code }, { auth }) => {
       const user = await Auth.getUser(auth)
@@ -150,17 +150,18 @@ module.exports = {
       let terms = []
       for (let t of required) {
         const ret = await UserAgreedTerm.query().where({ name, email, terms_name: t }).fetch()
-        if (!ret.length) terms.push(t)
+        if (!ret.rows.length) terms.push(t)
       }
       return terms
     },
-    blind_tasting_product_info: async (_, { date, station }, {}) => {
-      const info = await TastingInfo.query()
+    tasting_info: async (_, { date, station }, {}) => {
+      const stations = await TastingStationInfo.query()
             .where('date', '=', date)
             .andWhere('station', '=', station)
             .fetch()
-      if (!info.length) return []
-      return JSON.parse(info[0].products)
+      if (!stations.rows) return
+      await stations.rows[0].load_products()
+      return stations.rows[0].toJSON()
     },
   },
   Mutation: {

@@ -7,7 +7,8 @@ class TastingInfoSchema extends Schema {
     this.create('tasting_infos', (table) => {
       table.string('date')
       table.integer('station')
-      table.string('products')
+      table.integer('product_code')
+      table.string('product_name')
       table.increments()
       table.timestamps()
     })
