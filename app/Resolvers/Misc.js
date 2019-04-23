@@ -9,6 +9,7 @@ const CalendarEventMaster = use('App/Models/CalendarEventMaster')
 const CheckInLog = use('App/Models/CheckInLog')
 const UserAgreedTerm = use('App/Models/UserAgreedTerm')
 const ClassInterest = use('App/Models/ClassInterest')
+const TastingInfo = use('App/Models/TastingInfo')
 const Product = use('App/Models/Product')
 const CouponToken = use('App/Models/CouponToken')
 const Coupon = use('App/Models/Coupon')
@@ -125,6 +126,7 @@ module.exports = {
       const certs = await CouponToken.query()
             .where('claimed_by', '=', user.id)
             .andWhere('type', '=', 'gift_cert')
+            .fetch()
       return certs.reduce((acc, c) => acc + c.amount_remaining, 0)
     },
     get_cart_coupon: async (_, { code }, { auth }) => {
@@ -151,6 +153,14 @@ module.exports = {
         if (!ret.length) terms.push(t)
       }
       return terms
+    },
+    blind_tasting_product_info: async (_, { date, station }, {}) => {
+      const info = await TastingInfo.query()
+            .where('date', '=', date)
+            .andWhere('station', '=', station)
+            .fetch()
+      if (!info) return []
+      return JSON.parse(info.products)
     },
   },
   Mutation: {
