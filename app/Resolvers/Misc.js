@@ -149,7 +149,7 @@ module.exports = {
       ]
       let terms = []
       for (let t of required) {
-        const ret = await UserAgreedTerm.query().where({ name, email, terms_name: t })
+        const ret = await UserAgreedTerm.query().where({ name, email, terms_name: t }).fetch()
         if (!ret.length) terms.push(t)
       }
       return terms
@@ -159,8 +159,8 @@ module.exports = {
             .where('date', '=', date)
             .andWhere('station', '=', station)
             .fetch()
-      if (!info) return []
-      return JSON.parse(info.products)
+      if (!info.length) return []
+      return JSON.parse(info[0].products)
     },
   },
   Mutation: {
