@@ -33,7 +33,7 @@ class CalendarEventMaster extends Model {
 
   getNextEvent() {
     return (this._events || [])
-      .filter(e => moment(e.start).isAfter())[0] || {}
+      .filter(e => e.status === "open" && moment(e.start).isAfter())[0] || {}
   }
 }
 
