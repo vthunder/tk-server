@@ -159,7 +159,7 @@ module.exports = {
             .where('date', '=', date)
             .andWhere('station', '=', station)
             .fetch()
-      if (!stations.rows) return
+      if (!(stations.rows && stations.rows.length)) return
       await stations.rows[0].load_products()
       return stations.rows[0].toJSON()
     },
