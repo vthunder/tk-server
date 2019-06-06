@@ -14,6 +14,8 @@
 */
 
 const ical = require('ical-generator');
+const moment = use('moment')
+
 const Route = use('Route')
 const Config = use('Adonis/Src/Config')
 const GraphQLServer = use('Adonis/Addons/GraphQLServer')
