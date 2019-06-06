@@ -1,4 +1,5 @@
 const moment = use('moment')
+const md5 = use('md5')
 const Bottleneck = use('bottleneck')
 const GraphQLError = use('Adonis/Addons/GraphQLError')
 const Config = use('Adonis/Src/Config')
@@ -162,6 +163,17 @@ module.exports = {
       if (!(stations.rows && stations.rows.length)) return
       await stations.rows[0].load_products()
       return stations.rows[0].toJSON()
+    },
+    mailing_list_check: async (_, { email, list }) => {
+      const email_hash = md5(email.toLowerCase())
+      list = Config.get('mail.mailchimp.defaultList', list)
+      const listId = Config.get(`mail.mailchimp.listIds.${list}`)
+      try {
+        await Mailchimp.get(`/lists/${listId}/members/${email_hash}`)
+      } catch (e) {
+        return false
+      }
+      return true
     },
   },
   Mutation: {

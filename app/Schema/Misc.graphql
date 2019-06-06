@@ -65,6 +65,7 @@ type Query {
   get_latest_qr_scan: QrScanInfo
   get_legal_terms (name: String!, email: String!): [String]
   tasting_info (date: String!, station: Int!): TastingInfo
+  mailing_list_check (email: String!, list: String): Boolean
 }
 
 type Mutation {
