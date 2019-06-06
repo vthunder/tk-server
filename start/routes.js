@@ -35,14 +35,19 @@ Route.route('/ical', async (context) => {
     events.rows[n].master = master[0]
   }
 
-  let processed_events = events.toJSON().map((e) => {
+  let processed_events = events.toJSON().filter(e => !e.calendar_hide).map((e) => {
     delete e.status
     e.summary = e.title
+    // FIXME: gross hack because I cannot figure out proper timezone support
+    e.start = moment(e.start).subtract(1, 'hour').format()
+    e.end = moment(e.end).subtract(1, 'hour').format()
     return e
   })
 
   return ical({
+    name: 'Tinker Kitchen',
     domain: 'tinkerkitchen.org',
+    timezone: 'America/Los_Angeles',
     events: processed_events,
   }).toString();
 }, ['GET'])
