@@ -11,17 +11,21 @@ class CalendarEvent extends Model {
     return ['all_day', 'end']
   }
 
+  master() {
+    return this.belongsTo('App/Models/CalendarEventMaster', 'master_id')
+  }
+
   async load_master() {
-    this.master = await CalendarEventMaster.find(this.getMasterId())
+    this._master = await this.master().fetch()
   }
 
   _propMerge(prop) {
-    if (!this.master) return this[prop]
-    return this[prop] || this.master[prop]
+    if (!this._master) return this[prop]
+    return this[prop] || this._master[prop]
   }
 
   getMasterId() { return this.master_id || Config.get('app.default_event_master_id') }
-  getSkuId() { return this._propMerge('sku_id') }
+  getCalendarHide() { return this._propMerge('calendar_hide') }
   getTitle() { return this._propMerge('title') }
   getSlug() { return this._propMerge('slug') }
   getImageHeader() { return this._propMerge('image_header') }
@@ -32,8 +36,12 @@ class CalendarEvent extends Model {
   getPrice() { return this._propMerge('price') }
   getMemberPrice() { return this._propMerge('member_price') }
   getMaxSize() { return this._propMerge('max_size') }
+  getBookEventLabel() { return this._propMerge('book_event_label') }
   getExtBookUrl() { return this._propMerge('ext_book_url') }
   getExtMemberDiscountCode() { return this._propMerge('ext_member_discount_code') }
+  getShowInterested() { return this._propMerge('show_interested') }
+  getSidebarPreText() { return this._propMerge('sidebar_pre_text') }
+  getSidebarPostText() { return this._propMerge('sidebar_post_text') }
 
   getStart() {
     return moment(this._propMerge('start')).format('YYYY-MM-DD HH:mm:ss')

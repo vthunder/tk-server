@@ -6,19 +6,20 @@ type Event {
   id: Int
   status: String
   master_id: Int
+  start: String
+  end: String
+  sku_id: String
   calendar_hide: Boolean
   title: String
   slug: String
   image_header: String
-  start: String
-  end: String
-  duration: Float
   all_day: Boolean
+  duration: Float
   description: String
   category: String
   price: Int
   member_price: Int
-  sku_id: String
+  max_size: Int
   book_event_label: String
   ext_book_url: String
   ext_member_discount_code: String
@@ -85,7 +86,7 @@ input HoldInput {
 type Query {
   calendar_event(id: Int!): Event
   calendar_master(id: Int, slug: String): EventMaster
-  calendar_events: [Event]
+  calendar_events(id: Int, slug: String): [Event]
   calendar_event_masters: [EventMaster]
   google_calendar_events: [Event]
 }

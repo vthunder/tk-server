@@ -64,17 +64,25 @@ module.exports = {
       await master.load_events()
       return master.toJSON()
     },
-    calendar_events: async (_, {}, { auth }) => {
+    calendar_events: async (_, { id, slug }, { auth }) => {
       const user = await Auth.getUser(auth)
-      let events = await CalendarEvent.all()
-      const masters = await CalendarEventMaster.all()
-      const default_master_id = Config.get('app.default_event_master_id')
+      let events
+
+      if (id || slug) {
+        // retrieve only events belonging to a master
+        let master
+        if (id) master = await CalendarEventMaster.findOrFail(id)
+        if (!id && slug) master = await CalendarEventMaster.findByOrFail('slug', slug)
+        events = await master.events().fetch()
+      } else {
+        // retrieve all events
+        events = await CalendarEvent.all()
+      }
 
       for (let n = 0; n < events.rows.length; n++) {
-        const id = events.rows[n].master_id || default_master_id
-        const master = masters.rows.filter(m => m.id === id)
-        events.rows[n].master = master[0]
+        await events.rows[n].load_master()
       }
+
       events = events.toJSON()
       if (!(user && (user.is_member || user.has_free_membership()))) {
         events = events.map((e) => {
