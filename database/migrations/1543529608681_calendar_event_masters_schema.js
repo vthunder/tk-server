@@ -19,7 +19,7 @@ class CalendarEventMastersSchema extends Schema {
       table.integer('price')
       table.integer('member_price')
       table.integer('max_size').defaultsTo(10)
-      table.string('ext_book_text')
+      table.string('book_event_label')
       table.string('ext_book_url')
       table.string('ext_member_discount_code')
       table.text('sidebar_pre_text')

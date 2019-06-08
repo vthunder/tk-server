@@ -19,7 +19,7 @@ class CalendarEventsSchema extends Schema {
       table.string('sku_id')
       table.integer('price')
       table.integer('member_price')
-      table.string('ext_book_text')
+      table.string('book_event_label')
       table.string('ext_book_url')
       table.string('ext_member_discount_code')
       table.boolean('calendar_hide')
