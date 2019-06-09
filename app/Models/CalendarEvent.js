@@ -49,7 +49,7 @@ class CalendarEvent extends Model {
 
   getEnd() {
     if (this._propMerge('is_all_day')) {
-      return null
+      return moment(this._propMerge('start')).endOf('day')
     } else {
       return moment(this._propMerge('start'))
         .add(this._propMerge('duration'), 'hours')
