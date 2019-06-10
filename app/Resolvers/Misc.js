@@ -370,6 +370,7 @@ ClassInfo: ${data.class_info}
       await CheckInLog.create({
         name: data.name,
         email: data.email,
+        user_type: data.user_type,
         subscribe_to_list: data.subscribe_to_list,
       })
       for (let t of data.agreed_terms) {

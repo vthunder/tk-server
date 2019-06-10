@@ -45,6 +45,7 @@ type TastingProductInfo {
 input CheckinInput {
   name: String
   email: String
+  user_type: String
   subscribe_to_list: Boolean
   agreed_terms: [AgreedToTermsInput]
 }
