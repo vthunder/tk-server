@@ -1,3 +1,4 @@
+const querystring = require('querystring');
 const Persona = use('Persona')
 const GraphQLError = use('Adonis/Addons/GraphQLError')
 const Auth = use('TK/Auth')
@@ -61,7 +62,7 @@ module.exports = {
     },
     update_password_by_token: async (_, { token, password }) => {
       try {
-        await Persona.updatePasswordByToken(token,
+        await Persona.updatePasswordByToken(querystring.unescape(token),
                                             { password,
                                               password_confirmation: password })
         return 'OK'

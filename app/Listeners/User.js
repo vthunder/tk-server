@@ -1,7 +1,7 @@
 'use strict'
 
+const querystring = require('querystring');
 const Mail = use('Mail')
-
 const User = exports = module.exports = {}
 
 User.created = async ({ user, token }) => {
@@ -26,7 +26,7 @@ User.passwordChanged = async ({ user }) => {
 User.forgotPassword = async ({ user, token }) => {
   if (user.email.endsWith('@example.com')) return;
   console.log('got event: user forgot password: ' + user.email);
-  await Mail.send('emails.user_forgot', { user, token }, (message) => {
+  await Mail.send('emails.user_forgot', { user, token: querystring.escape(token) }, (message) => {
     message
       .to(user.email)
       .from('hello@tinkerkitchen.org')
