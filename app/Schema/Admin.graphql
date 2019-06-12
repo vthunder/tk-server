@@ -6,10 +6,22 @@ type AdminStats {
   num_event_bookings: Int
 }
 
+type AdminCheckinItem {
+  name: String
+  email: String
+  user_type: String
+  date: String
+}
+
 #
 # Queries & Mutations
 #
 
 type Query {
   admin_stats: AdminStats
+  admin_list_checkins: [AdminCheckinItem]
+}
+
+type Mutation {
+  refresh_members: String
 }

@@ -4,6 +4,7 @@ const Config = use('Adonis/Src/Config')
 const User = use('App/Models/User')
 const Booking = use('App/Models/Booking')
 const CalendarEvent = use('App/Models/CalendarEvent')
+const CheckInLog = use('App/Models/CheckInLog')
 
 // note: auth.getUser() implicitly checks Authorization header, throws otherwise
 
@@ -42,7 +43,21 @@ module.exports = {
         num_event_bookings: bookings,
       }
     },
+    admin_list_checkins: async (_, {}, { auth }) => {
+      const user = await auth.getUser()
+      const perms = await user.getPermissions()
+      if (!perms.includes('read_admin_dashboard')) return new GraphQLError('Permission denied')
+
+      const logs = await CheckInLog.all()
+      return logs.toJSON().map((i) => { i.date = i.created_at; return i; })
+    },
   },
   Mutation: {
+    refresh_members: async (_, {}, { auth }) => {
+      const user = await auth.getUser()
+      const perms = await user.getPermissions()
+      // fixme: add new permission
+      if (!perms.includes('read_admin_dashboard')) return new GraphQLError('Permission denied')
+    },
   },
 }
