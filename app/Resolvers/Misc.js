@@ -369,6 +369,7 @@ ClassInfo: ${data.class_info}
     checkin: async (_, { data }, {}) => {
       await CheckInLog.create({
         name: data.name,
+        child_name: data.child_name,
         email: data.email,
         user_type: data.user_type,
         subscribe_to_list: data.subscribe_to_list,
@@ -376,6 +377,7 @@ ClassInfo: ${data.class_info}
       for (let t of data.agreed_terms) {
         await UserAgreedTerm.create({
           name: data.name,
+          child_name: data.child_name,
           email: data.email,
           terms_name: t.terms_name,
           agreed_timestamp: t.agreed_timestamp,

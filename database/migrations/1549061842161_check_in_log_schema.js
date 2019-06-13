@@ -6,6 +6,7 @@ class CheckInLogSchema extends Schema {
   up () {
     this.create('check_in_logs', (table) => {
       table.string('name')
+      table.string('child_name')
       table.string('email')
       table.string('user_type')
       table.boolean('subscribe_to_list')

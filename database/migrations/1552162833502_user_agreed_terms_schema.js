@@ -7,6 +7,7 @@ class UserAgreedTermsSchema extends Schema {
     this.create('user_agreed_terms', (table) => {
       table.increments()
       table.string('name')
+      table.string('child_name')
       table.string('email')
       table.integer('user_id')
       table.string('terms_name')
