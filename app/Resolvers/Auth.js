@@ -29,7 +29,7 @@ module.exports = {
     },
     verify_email: async (obj, { token }, context) => {
       try {
-        await Persona.verifyEmail(token)
+        await Persona.verifyEmail(querystring.unescape(token))
         return 'OK'
       } catch (e) {
         return 'Error'

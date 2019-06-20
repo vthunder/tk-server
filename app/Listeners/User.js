@@ -7,7 +7,7 @@ const User = exports = module.exports = {}
 User.created = async ({ user, token }) => {
   if (user.email.endsWith('@example.com')) return;
   console.log('got event: user created: ' + user.email);
-  await Mail.send('emails.user_created', { user, token }, (message) => {
+  await Mail.send('emails.user_created', { user, token: querystring.escape(token) }, (message) => {
     message
       .to(user.email)
       .from('hello@tinkerkitchen.org')
