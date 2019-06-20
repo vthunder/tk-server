@@ -15,12 +15,13 @@ const Product = use('App/Models/Product')
 const CouponToken = use('App/Models/CouponToken')
 const Coupon = use('App/Models/Coupon')
 const User = use('App/Models/User')
+const QrToken = use('App/Models/QrToken')
+const QrScanLog = use('App/Models/QrScanLog')
 const KV = use('TK/KeyVal')
 const Token = use('TK/Token')
 const Mail = use('Mail')
 const Auth = use('TK/Auth')
 const PubSub = use('TK/PubSub')
-const QR = use('TK/QR')
 
 const limiter = new Bottleneck({
   reservoir: 10, // initial value
@@ -144,10 +145,6 @@ module.exports = {
       if (!coupon) return { valid: false }
       await coupon.checkValidity()
       return coupon
-    },
-    get_latest_qr_scan: async (_, {}, {}) => {
-      const checkin = await CheckInLog.last()
-      return await QR.parse(User, CouponToken, checkin.qr_data)
     },
     get_legal_terms: async (_, { name, email }, {}) => {
       // TODO: Configure/augment this list by letting user pick which
@@ -360,12 +357,18 @@ ClassInfo: ${data.class_info}
     },
 
     check_in_qr_scan: async (_, { qr_data }, {}) => {
-      return await limiter.schedule(async () => {
-        CheckInLog.create({ qr_data })
-        const qr_info = await QR.parse(User, CouponToken, qr_data)
-        PubSub.publish('QR_SCANNED', { new_qr_scan: qr_info })
-      })
+      const found = qr_data.match('https:\/\/tinkerkitchen.org\/qr\/token\/(.*)$')
+      if (found && found[1]) {
+        const qr_token = await QrToken.findBy('token', found[1])
+        await qr_token.load()
+        await QrScanLog.create({ qr_data,
+                                 qr_token_id: qr_token.id,
+                                 qr_token_status: qr_token.status })
+        return qr_token.toJSON()
+      }
+      return new GraphQLError('QR code not found')
     },
+
     checkin: async (_, { data }, {}) => {
       await CheckInLog.create({
         name: data.name,
@@ -389,11 +392,6 @@ ClassInfo: ${data.class_info}
           .from('hello@tinkerkitchen.org')
           .subject('You checked in at Tinker Kitchen')
       })
-    },
-  },
-  Subscription: {
-    new_qr_scan: {
-      subscribe: () => PubSub.asyncIterator('QR_SCANNED'),
     },
   },
 }

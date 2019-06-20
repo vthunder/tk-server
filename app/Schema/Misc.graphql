@@ -18,16 +18,20 @@ type CouponStatus {
   type: String
 }
 
-# type: user, token
-# name: [type: user] user name
-# email: [type: user] user email
-# status: [type: token] new, used
+# type: user, daypass, ticket (, giftcert?)
+# name: user name (if known)
+# email: user / purchase email (if known)
+# user_status: member / nonmember (user type)
+# consumable_status: new / used (daypass, ticket types)
+
 type QrScanInfo {
   type: String
   name: String
   email: String
-  status: String
-  agreed_terms: String
+  purchase_name: String
+  purchase_email: String
+  membership_status: Boolean
+  consumable_status: String
 }
 
 type TastingInfo {
@@ -64,7 +68,6 @@ type Query {
   ping: String
   gift_certificate_balance: Int
   get_cart_coupon (code: String!): CartCoupon
-  get_latest_qr_scan: QrScanInfo
   get_legal_terms (name: String!, email: String!): [String]
   tasting_info (date: String!, station: Int!): TastingInfo
   mailing_list_check (email: String!, list: String): Boolean
@@ -75,10 +78,6 @@ type Mutation {
   create_coupon_token (type: String!, count: Int): [String]
   send_coupon_tokens (type: String!, emails: String!): String
   use_coupon_token (token: String!): CouponStatus
-  check_in_qr_scan (qr_data: String!): String
+  check_in_qr_scan (qr_data: String!): QrScanInfo
   checkin (data: CheckinInput!): String
-}
-
-type Subscription {
-    new_qr_scan: QrScanInfo
 }
