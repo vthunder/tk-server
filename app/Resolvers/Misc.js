@@ -75,6 +75,11 @@ module.exports = {
         if (id) master = await CalendarEventMaster.findOrFail(id)
         if (!id && slug) master = await CalendarEventMaster.findByOrFail('slug', slug)
         events = await master.events().fetch()
+
+        // if there are no events scheduled, return the master
+        if (!events.rows.length) {
+          return [master.toJSON()]
+        }
       } else {
         // retrieve all events
         events = await CalendarEvent.all()
