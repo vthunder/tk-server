@@ -16,6 +16,7 @@ to find it: <a href="https://wiki.tinkerkitchen.org/equipment">
 https://wiki.tinkerkitchen.org/equipment</a></li>
 </ul>
 
+@if(data.agreed_terms.length)
 <p>We also wanted to remind you of the legal terms you agreed to, for
 your reference:</p>
 
@@ -24,6 +25,7 @@ your reference:</p>
 <li><a href="https://tinkerkitchen.org/files/{{ t.terms_name }}">{{ t.terms_name }}</a></li>
 @endeach
 </ul>
+@endif
 
 <p>Happy cooking!</p>
 <p>- The Tinker Kitchen crew</p>

@@ -386,12 +386,15 @@ ClassInfo: ${data.class_info}
           agreed_timestamp: t.agreed_timestamp,
         })
       }
-      await Mail.send('emails.check_in', { data }, (message) => {
-        message
-          .to(data.email)
-          .from('hello@tinkerkitchen.org')
-          .subject('You checked in at Tinker Kitchen')
-      })
+      // skip email if no terms were agreed to--don't want to spam users all the time
+      if (data.agreed_terms.length) {
+        await Mail.send('emails.check_in', { data }, (message) => {
+          message
+            .to(data.email)
+            .from('hello@tinkerkitchen.org')
+            .subject('You checked in at Tinker Kitchen')
+        })
+      }
     },
   },
 }
