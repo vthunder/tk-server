@@ -15,6 +15,7 @@ type User {
   has_stripe_customer: Boolean
   has_previous_stripe_ids: Boolean
   in_mailing_list: Boolean
+  qr_token: String
 }
 
 type JWT {

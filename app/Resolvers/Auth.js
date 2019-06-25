@@ -11,6 +11,7 @@ module.exports = {
       const user = await Auth.getUser(auth)
       if (!user) return {}
       await user.stripe_check()
+      await user.load_qr_token()
       return user.toJSON()
     },
   },

@@ -18,7 +18,7 @@ class User extends Model {
   static get computed() {
     return ['has_stripe_customer', 'has_previous_stripe_ids',
             'is_free_member', 'free_member_until', 'free_membership_type',
-            'is_member_eq']
+            'is_member_eq', 'qr_token']
   }
 
   static get traits() {
@@ -42,6 +42,10 @@ class User extends Model {
   // Day passes
   passes () {
     return this.hasMany('App/Models/Pass')
+  }
+
+  qr_info() {
+    return this.hasOne('App/Models/QrToken')
   }
 
   /**
@@ -71,11 +75,18 @@ class User extends Model {
     return this.free_membership_type
   }
 
+  getQrToken() { return this.qr_token }
+
   /**
    *
    * Other instance methods
    *
    */
+
+  async load_qr_token() {
+    const qr_info = await this.qr_info().fetch()
+    if (qr_info) this.qr_token = qr_info.token
+  }
 
   async give_free_membership(length, type) {
     if (!length.match(/^(month|year)$/)) throw 'Invalid free membership length'
