@@ -5,7 +5,7 @@ const User = use('App/Models/User')
 
 class QrToken extends Model {
   static get computed() {
-    return ['name', 'email', 'purchase_name', 'purchase_email', 'membership_status']
+    return ['name', 'email', 'user_status', 'purchase_name', 'purchase_email', 'membership_status']
   }
 
   async load() {
@@ -25,6 +25,11 @@ class QrToken extends Model {
   getEmail() {
     if (!this._user) return null
     return this._user.email
+  }
+
+  getUserStatus() {
+    if (!this._user) return null
+    return this._user.user_status
   }
 
   getPurchaseName() {

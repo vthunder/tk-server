@@ -28,9 +28,9 @@ type QrScanInfo {
   type: String
   name: String
   email: String
+  user_status: String
   purchase_name: String
   purchase_email: String
-  membership_status: Boolean
   consumable_status: String
 }
 
