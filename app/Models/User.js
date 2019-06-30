@@ -136,7 +136,11 @@ class User extends Model {
         const subs = await Stripe.subscriptions.list({ customer: this.stripe_id })
         if (subs.data.length > 0) {
           const memberships = subs.data
-                .filter(s => s.plan.nickname.match(/(Monthly|Yearly) membership/))
+                .filter((s) => {
+                  const foo = s.items.data
+                        .filter(i => i.plan.nickname.match(/(Monthly|Yearly) membership/))
+                  return foo.length > 0
+                })
           if (memberships.length) return true
         }
       } catch (e) {
