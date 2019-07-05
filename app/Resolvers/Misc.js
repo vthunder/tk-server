@@ -362,7 +362,8 @@ ClassInfo: ${data.class_info}
     },
 
     check_in_qr_scan: async (_, { qr_data }, {}) => {
-      const found = qr_data.match('https:\/\/tinkerkitchen.org\/qr\/token\/(.*)$')
+      let found = qr_data.match('https:\/\/tinkerkitchen.org\/qr\/token\/(.*)$')
+      if (!found) found = qr_data.match('https:\/\/tinkerkitchen.org\/token\/qr\/(.*)$')
       if (found && found[1]) {
         const qr_token = await QrToken.findBy('token', found[1])
         await qr_token.load()
