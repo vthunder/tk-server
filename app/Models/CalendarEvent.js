@@ -27,6 +27,7 @@ class CalendarEvent extends Model {
   getMasterId() { return this.master_id || Config.get('app.default_event_master_id') }
   getCalendarHide() { return this._propMerge('calendar_hide') }
   getTitle() { return this._propMerge('title') }
+  getPageTitle() { return this._propMerge('page_title') }
   getSlug() { return this._propMerge('slug') }
   getImageHeader() { return this._propMerge('image_header') }
   getAllDay() { return this._propMerge('is_all_day') }

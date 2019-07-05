@@ -11,6 +11,7 @@ class CalendarEventsSchema extends Schema {
       table.datetime('start').notNullable()
       table.float('duration')
       table.string('title', 254)
+      table.string('page_title', 254)
       table.string('slug', 254)
       table.string('image_header', 254)
       table.text('description')

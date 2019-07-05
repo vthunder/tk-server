@@ -10,6 +10,7 @@ class CalendarEventMastersSchema extends Schema {
       table.boolean('featured').defaultsTo(false)
       table.boolean('calendar_hide')
       table.string('title', 254).notNullable()
+      table.string('page_title', 254).notNullable()
       table.string('slug', 254).notNullable()
       table.string('image_header', 254).defaultsTo('/images/default-class-header.jpg')
       table.boolean('is_all_day').defaultsTo(false)
