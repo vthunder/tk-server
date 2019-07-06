@@ -26,6 +26,8 @@ class CalendarEventsSchema extends Schema {
       table.boolean('calendar_hide')
       table.boolean('show_interested').defaultsTo(true)
       table.integer('max_size')
+      table.text('sidebar_pre_text')
+      table.text('sidebar_post_text')
       table.timestamps()
     })
   }
