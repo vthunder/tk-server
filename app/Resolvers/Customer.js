@@ -24,8 +24,8 @@ function fixChargeItems(array) {
     if (obj.order && obj.order.items) {
       let items = []
       for (let item of obj.order.items) {
-        item.attributes = KV.mapField(_.get(item, 'parent.attributes', {}));
-        item.parent = _.get(item, 'parent.id');
+        item.attributes = KV.mapField(_.get(item, 'parent.attributes', {}))
+        item.parent = _.get(item, 'parent.id')
         items.push(item)
       }
       obj.order.items = items
@@ -88,7 +88,10 @@ module.exports = {
       if (user.stripe_id) {
         customer = await Stripe.customers.retrieve(user.stripe_id)
       } else {
-        const customers = await Stripe.customers.list({ email: user.email, limit: 1 })
+        const customers = await Stripe.customers.list({
+          email: user.email,
+          limit: 1,
+        })
         if (customers.data.length > 0) {
           console.warn(`Warning: existing Stripe customer has email: ${user.email}`)
           customer = customers.data[0]
@@ -171,7 +174,7 @@ module.exports = {
       const discount = { amount: 0, description: '' }
       const order_args = {
         currency: 'usd',
-        items: items.map(i => ({ parent: i.sku, quantity: i.quantity }))
+        items: items.map(i => ({ parent: i.sku, quantity: i.quantity })),
       }
 
       if (user) {
@@ -190,7 +193,8 @@ module.exports = {
               // max 1x discount per event
               member_discounts += parseInt(product.metadata.member_discount, 10)
             } else {
-              member_discounts += parseInt(product.metadata.member_discount, 10) * i.quantity
+              member_discounts +=
+                parseInt(product.metadata.member_discount, 10) * i.quantity
             }
           }
         }
@@ -203,7 +207,8 @@ module.exports = {
 
       if (member_discounts) {
         discount.amount += member_discounts
-        if (coupon_code) discount.description = `Member discounts + coupon: ${discount.description}`
+        if (coupon_code)
+          discount.description = `Member discounts + coupon: ${discount.description}`
         else discount.description = 'Member discounts'
       }
 
@@ -231,22 +236,22 @@ module.exports = {
         }
         orderObj = await Stripe.orders.pay(order, { customer: user.stripe_id })
       } else {
-        email = user? user.email : email
+        email = user ? user.email : email
         orderObj = await Stripe.orders.pay(order, { source, email })
       }
 
       // Hack to add an email to the charge itself, triggering a receipt to be sent
-      await Stripe.charges
-        .update(orderObj.charge,
-                { receipt_email: user? user.email : email })
+      await Stripe.charges.update(orderObj.charge, {
+        receipt_email: user ? user.email : email,
+      })
 
       if (orderObj.status === 'paid') {
         orderObj.items
           .filter(i => i.type === 'sku')
-          .forEach(async (i) => {
+          .forEach(async i => {
             const skuObj = await Stripe.skus.retrieve(i.parent)
 
-            let units = (i.quantity || 1)
+            let units = i.quantity || 1
             if (skuObj.attributes && skuObj.attributes['bundled-units']) {
               units = units * skuObj.attributes['bundled-units']
             }
@@ -276,12 +281,13 @@ module.exports = {
               await Mail.send(
                 'emails.event_booked',
                 { user, product: prodObj, units },
-                (message) => {
+                message => {
                   message
                     .to(email)
                     .from('hello@tinkerkitchen.org')
                     .subject('Your Tinker Kitchen Event Booking')
-                })
+                }
+              )
             } else if (prodObj.name === 'Gift Certificate') {
               for (let n = 0; n < units; n++) {
                 const certOpts = {
@@ -298,17 +304,14 @@ module.exports = {
             } else {
               console.log(`Unknown product: "${prodObj.name}", needs to be tracked!`)
             }
-          });
-
-        await Mail.send(
-          'emails.admin_new_order',
-          { user, order: orderObj },
-          (message) => {
-            message
-              .to('hello@tinkerkitchen.org')
-              .from('hello@tinkerkitchen.org')
-              .subject('New Order')
           })
+
+        await Mail.send('emails.admin_new_order', { user, order: orderObj }, message => {
+          message
+            .to('hello@tinkerkitchen.org')
+            .from('hello@tinkerkitchen.org')
+            .subject('New Order')
+        })
       }
 
       orderObj.metadata = KV.mapField(orderObj.metadata)

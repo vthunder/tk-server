@@ -49,7 +49,9 @@
     "stripe": "^6.8.0",
     "subscriptions-transport-ws": "^0.9.15"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "babel-eslint": "^10.0.3"
+  },
   "autoload": {
     "App": "./app"
   }

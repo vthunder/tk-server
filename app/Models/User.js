@@ -5,27 +5,30 @@ const Model = use('Model')
 const Stripe = use('TK/Stripe')
 
 class User extends Model {
-  static boot () {
+  static boot() {
     super.boot()
     this.addHook('beforeSave', 'UserHook.hashPassword')
   }
 
   // FIXME: currently unused
-  static get dates () {
+  static get dates() {
     return super.dates.concat(['last_member_check'])
   }
 
   static get computed() {
-    return ['has_stripe_customer', 'has_previous_stripe_ids',
-            'is_free_member', 'free_member_until', 'free_membership_type',
-            'is_member_eq', 'qr_token']
+    return [
+      'has_stripe_customer',
+      'has_previous_stripe_ids',
+      'is_free_member',
+      'free_member_until',
+      'free_membership_type',
+      'is_member_eq',
+      'qr_token',
+    ]
   }
 
   static get traits() {
-    return [
-      '@provider:Adonis/Acl/HasRole',
-      '@provider:Adonis/Acl/HasPermission'
-    ]
+    return ['@provider:Adonis/Acl/HasRole', '@provider:Adonis/Acl/HasPermission']
   }
 
   /**
@@ -35,12 +38,12 @@ class User extends Model {
    */
 
   // Auth tokens, for 'refreshTokens' & 'rememberToken' features
-  tokens () {
+  tokens() {
     return this.hasMany('App/Models/Token')
   }
 
   // Day passes
-  passes () {
+  passes() {
     return this.hasMany('App/Models/Pass')
   }
 
@@ -64,18 +67,26 @@ class User extends Model {
     return false
   }
 
-  getIsFreeMember() { return this.has_free_membership() }
+  getIsFreeMember() {
+    return this.has_free_membership()
+  }
 
-  getIsMemberEq() { return this.is_member || this.has_free_membership() }
+  getIsMemberEq() {
+    return this.is_member || this.has_free_membership()
+  }
 
-  getFreeMemberUntil() { return moment(this.free_membership_end).format('X') }
+  getFreeMemberUntil() {
+    return moment(this.free_membership_end).format('X')
+  }
 
   getFreeMembershipType() {
     if (!this.has_free_membership()) return ''
     return this.free_membership_type
   }
 
-  getQrToken() { return this.qr_token }
+  getQrToken() {
+    return this.qr_token
+  }
 
   /**
    *
@@ -120,12 +131,12 @@ class User extends Model {
     const now = moment(Date.now())
 
     if (this.last_member_check && ts.add(12, 'hours').isAfter(now)) {
-      return;
+      return
     }
 
     await this.deleted_customer_check()
     this.is_member = await this.member_check()
-    this.last_member_check = now.format("YYYY-MM-DD HH:mm:ss")
+    this.last_member_check = now.format('YYYY-MM-DD HH:mm:ss')
 
     await this.save()
   }
@@ -135,12 +146,12 @@ class User extends Model {
       try {
         const subs = await Stripe.subscriptions.list({ customer: this.stripe_id })
         if (subs.data.length > 0) {
-          const memberships = subs.data
-                .filter((s) => {
-                  const foo = s.items.data
-                        .filter(i => i.plan.nickname.match(/(Monthly|Yearly) membership/))
-                  return foo.length > 0
-                })
+          const memberships = subs.data.filter(s => {
+            const foo = s.items.data.filter(i =>
+              i.plan.nickname.match(/(Monthly|Yearly) membership/)
+            )
+            return foo.length > 0
+          })
           if (memberships.length) return true
         }
       } catch (e) {

@@ -1,4 +1,4 @@
-const querystring = require('querystring');
+const querystring = require('querystring')
 const Persona = use('Persona')
 const GraphQLError = use('Adonis/Addons/GraphQLError')
 const Auth = use('TK/Auth')
@@ -18,8 +18,12 @@ module.exports = {
   Mutation: {
     signup: async (obj, { name, email, password }, { auth }) => {
       // FIXME: can't get custom validation rules to work, so:
-      const user = await Persona.register({ name, email, password,
-                                            password_confirmation: password })
+      const user = await Persona.register({
+        name,
+        email,
+        password,
+        password_confirmation: password,
+      })
       user.jwt = await auth.generate(user)
       return user
     },
@@ -38,15 +42,18 @@ module.exports = {
     },
     update_profile: async (_, args, { auth }) => {
       const user = await auth.getUser()
-      const profile = { name, email } = args.profile
+      const profile = ({ name, email } = args.profile)
       await Persona.updateProfile(user, profile)
       return 'OK'
     },
     update_password: async (_, { old_password, password }, { auth }) => {
       const user = await auth.getUser()
       try {
-        await Persona.updatePassword(user, { old_password, password,
-                                             password_confirmation: password })
+        await Persona.updatePassword(user, {
+          old_password,
+          password,
+          password_confirmation: password,
+        })
       } catch (e) {
         console.log(e)
         return e.messages[0].message
@@ -63,9 +70,10 @@ module.exports = {
     },
     update_password_by_token: async (_, { token, password }) => {
       try {
-        await Persona.updatePasswordByToken(querystring.unescape(token),
-                                            { password,
-                                              password_confirmation: password })
+        await Persona.updatePasswordByToken(querystring.unescape(token), {
+          password,
+          password_confirmation: password,
+        })
         return 'OK'
       } catch (e) {
         return `Error: ${e}`
