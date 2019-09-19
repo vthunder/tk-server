@@ -35,7 +35,9 @@ const limiter = new Bottleneck({
 
 module.exports = {
   Query: {
-    ping: () => { return "pong" },
+    ping: () => {
+      return 'pong'
+    },
     products: async () => {
       const products = await Product.all()
       return products.toJSON()
@@ -91,7 +93,7 @@ module.exports = {
 
       events = events.toJSON()
       if (!(user && (user.is_member || user.has_free_membership()))) {
-        events = events.map((e) => {
+        events = events.map(e => {
           e.ext_member_discount_code = ''
           return e
         })
@@ -106,7 +108,7 @@ module.exports = {
       }
       masters = masters.toJSON()
       if (!(user && (user.is_member || user.has_free_membership()))) {
-        masters = masters.map((e) => {
+        masters = masters.map(e => {
           e.ext_member_discount_code = ''
           return e
         })
@@ -117,14 +119,18 @@ module.exports = {
       try {
         const id = Config.get('app.googleapi.calendarId.primary')
         const events = await CalendarAPI.Events.list(id, {
-          timeMin: moment().subtract(1, 'months').format('YYYY-MM-DDTHH:mm:ssZ'),
-          timeMax: moment().add(2, 'months').format('YYYY-MM-DDTHH:mm:ssZ'),
+          timeMin: moment()
+            .subtract(1, 'months')
+            .format('YYYY-MM-DDTHH:mm:ssZ'),
+          timeMax: moment()
+            .add(2, 'months')
+            .format('YYYY-MM-DDTHH:mm:ssZ'),
           singleEvents: 'true',
           orderBy: 'startTime',
         })
-        return events.map((e) => {
+        return events.map(e => {
           return {
-//            id: e.id,
+            //            id: e.id,
             title: e.summary,
             start: moment(e.start.dateTime).format(),
             end: moment(e.end.dateTime).format(),
@@ -139,9 +145,9 @@ module.exports = {
       const user = await Auth.getUser(auth)
       if (!user) return 0
       const certs = await CouponToken.query()
-            .where('claimed_by', '=', user.id)
-            .andWhere('type', '=', 'gift_cert')
-            .fetch()
+        .where('claimed_by', '=', user.id)
+        .andWhere('type', '=', 'gift_cert')
+        .fetch()
       return certs.rows.reduce((acc, c) => acc + c.amount_remaining, 0)
     },
     get_cart_coupon: async (_, { code }, { auth }) => {
@@ -156,20 +162,22 @@ module.exports = {
       // event they are checking in for
       const required = [
         'Liability_Waiver_and_Media_Release_2018_11_10',
-        // 'Kitchentown Tasting Event Agreement - rbc 2019-03-04',
+        'Kitchentown Tasting Event Agreement - rbc 2019-03-04',
       ]
       let terms = []
       for (let t of required) {
-        const ret = await UserAgreedTerm.query().where({ name, email, terms_name: t }).fetch()
+        const ret = await UserAgreedTerm.query()
+          .where({ name, email, terms_name: t })
+          .fetch()
         if (!ret.rows.length) terms.push(t)
       }
       return terms
     },
     tasting_info: async (_, { date, station }, {}) => {
       const stations = await TastingStationInfo.query()
-            .where('date', '=', date)
-            .andWhere('station', '=', station)
-            .fetch()
+        .where('date', '=', date)
+        .andWhere('station', '=', station)
+        .fetch()
       if (!(stations.rows && stations.rows.length)) return
       await stations.rows[0].load_products()
       return stations.rows[0].toJSON()
@@ -190,7 +198,8 @@ module.exports = {
     create_calendar_event: async (_, { event_data }, { auth }) => {
       const user = await Auth.requireUser(auth)
       const perms = await user.getPermissions()
-      if (!perms.includes('create_calendar_event')) return new GraphQLError('Permission denied')
+      if (!perms.includes('create_calendar_event'))
+        return new GraphQLError('Permission denied')
 
       const event = await CalendarEvent.create({
         title: event_data.title,
@@ -235,7 +244,7 @@ ClassInfo: ${data.class_info}
 `,
       })
 
-      await Mail.send('emails.event_hold_created_admin', { data }, (message) => {
+      await Mail.send('emails.event_hold_created_admin', { data }, message => {
         message
           .to('hello@tinkerkitchen.org')
           .from('hello@tinkerkitchen.org')
@@ -243,7 +252,7 @@ ClassInfo: ${data.class_info}
       })
 
       if (email) {
-        await Mail.send('emails.event_hold_created_customer', { data }, (message) => {
+        await Mail.send('emails.event_hold_created_customer', { data }, message => {
           message
             .to(email)
             .from('hello@tinkerkitchen.org')
@@ -269,14 +278,15 @@ ClassInfo: ${data.class_info}
     create_coupon_token: async (_, { type, count }, { auth }) => {
       const user = await Auth.requireUser(auth)
       const perms = await user.getPermissions()
-      if (!perms.includes('create_coupon_tokens')) return new GraphQLError('Permission denied')
+      if (!perms.includes('create_coupon_tokens'))
+        return new GraphQLError('Permission denied')
       if (!type.match(/(staff|ks_daypasses|ks_month|ks_year|ks_class|daypass|month)/))
         return 'Bad coupon type'
 
       return [...Array(count)].map(async (_, i) => {
         const coupon = await CouponToken.create({
           type,
-          token: Token.generate()
+          token: Token.generate(),
         })
         return coupon.token
       })
@@ -284,21 +294,22 @@ ClassInfo: ${data.class_info}
     send_coupon_tokens: async (_, { type, emails }, { auth }) => {
       const user = await Auth.requireUser(auth)
       const perms = await user.getPermissions()
-      if (!perms.includes('create_coupon_tokens')) return new GraphQLError('Permission denied')
+      if (!perms.includes('create_coupon_tokens'))
+        return new GraphQLError('Permission denied')
       if (!type.match(/(staff|ks_daypasses|ks_month|ks_year|ks_class|month)/))
         return 'Bad coupon type'
 
-      emails.split(/[ ,]+/).map(async (email) => {
+      emails.split(/[ ,]+/).map(async email => {
         const coupon = await CouponToken.create({
           type,
-          token: Token.generate()
+          token: Token.generate(),
         })
 
         let template = 'emails.coupon_staff'
         if (type.match(/^ks_(month|year)/)) template = 'emails.coupon_ks'
         if (type.match(/^ks_(daypasses|class)/)) template = 'emails.coupon_ks_passes'
 
-        await Mail.send(template, { token: coupon.token }, (message) => {
+        await Mail.send(template, { token: coupon.token }, message => {
           message
             .to(email)
             .from('hello@tinkerkitchen.org')
@@ -362,14 +373,16 @@ ClassInfo: ${data.class_info}
     },
 
     check_in_qr_scan: async (_, { qr_data }, {}) => {
-      let found = qr_data.match('https:\/\/tinkerkitchen.org\/qr\/token\/(.*)$')
-      if (!found) found = qr_data.match('https:\/\/tinkerkitchen.org\/token\/qr\/(.*)$')
+      let found = qr_data.match('https://tinkerkitchen.org/qr/token/(.*)$')
+      if (!found) found = qr_data.match('https://tinkerkitchen.org/token/qr/(.*)$')
       if (found && found[1]) {
         const qr_token = await QrToken.findBy('token', found[1])
         await qr_token.load()
-        await QrScanLog.create({ qr_data,
-                                 qr_token_id: qr_token.id,
-                                 qr_token_status: qr_token.status })
+        await QrScanLog.create({
+          qr_data,
+          qr_token_id: qr_token.id,
+          qr_token_status: qr_token.status,
+        })
         return qr_token.toJSON()
       }
       return new GraphQLError('QR code not found')
@@ -394,7 +407,7 @@ ClassInfo: ${data.class_info}
       }
       // skip email if no terms were agreed to--don't want to spam users all the time
       if (data.agreed_terms.length) {
-        await Mail.send('emails.check_in', { data }, (message) => {
+        await Mail.send('emails.check_in', { data }, message => {
           message
             .to(data.email)
             .from('hello@tinkerkitchen.org')
