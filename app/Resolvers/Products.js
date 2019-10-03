@@ -28,11 +28,11 @@ module.exports = {
       return keyValMapArray(products.data, ['metadata'])
     },
     plans: async (_, { product }, { auth }) => {
-      const plans = await Stripe.plans.list({ product })
+      const plans = await Stripe.plans.list({ product, limit: 100 })
       return keyValMapArray(plans.data, ['metadata'])
     },
     plan: async (_, { product, nickname }, { auth }) => {
-      let plans = await Stripe.plans.list({ product })
+      let plans = await Stripe.plans.list({ product, limit: 100 })
       plans = keyValMapArray(plans.data, ['metadata'])
       return plans.filter(p => p.nickname === nickname)[0]
     },
