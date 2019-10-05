@@ -11,7 +11,7 @@ class Coupon extends Model {
     await this.checkValidity()
     if (this.valid) {
       if (this.amount_off) return this.amount_off
-      if (this.percent_off) return subtotal * this.percent_off
+      if (this.percent_off) return Math.round(subtotal * this.percent_off)
     }
     return 0
   }
