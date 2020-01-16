@@ -21,6 +21,7 @@ type Event {
   price: Int
   member_price: Int
   max_size: Int
+  unit_descriptor: String
   book_event_label: String
   ext_book_url: String
   ext_member_discount_code: String
@@ -44,6 +45,7 @@ type EventMaster {
   price: Int
   member_price: Int
   max_size: Int
+  unit_descriptor: String
   book_event_label: String
   ext_book_url: String
   ext_member_discount_code: String
