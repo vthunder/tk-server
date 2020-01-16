@@ -13,27 +13,24 @@ module.exports = {
     admin_stats: async (_, {}, { auth }) => {
       const user = await auth.getUser()
       const perms = await user.getPermissions()
-      if (!perms.includes('read_admin_dashboard')) return new GraphQLError('Permission denied')
+      if (!perms.includes('read_admin_dashboard'))
+        return new GraphQLError('Permission denied')
 
       const now = moment().format('YYYY-MM-DD')
 
-      const members = await User
-            .query()
-            .where('is_member', '=', 1)
-            .getCount()
-      const coupon_members = await User
-            .query()
-            .where('free_membership_end', '>=', now)
-            .andWhere('is_member', '=', 0)
-            .getCount()
-      const events = await CalendarEvent
-            .query()
-            .where('start', '>=', now)
-            .getCount();
-      const bookings = await Booking
-            .query()
-            .where('id', '>', 0)
-            .getCount(); // FIXME: add column to filter on
+      const members = await User.query()
+        .where('is_member', '=', 1)
+        .getCount()
+      const coupon_members = await User.query()
+        .where('free_membership_end', '>=', now)
+        .andWhere('is_member', '=', 0)
+        .getCount()
+      const events = await CalendarEvent.query()
+        .where('start', '>=', now)
+        .getCount()
+      const bookings = await Booking.query()
+        .where('id', '>', 0)
+        .getCount() // FIXME: add column to filter on
 
       return {
         num_members: members + coupon_members,
@@ -46,10 +43,14 @@ module.exports = {
     admin_list_checkins: async (_, {}, { auth }) => {
       const user = await auth.getUser()
       const perms = await user.getPermissions()
-      if (!perms.includes('read_admin_dashboard')) return new GraphQLError('Permission denied')
+      if (!perms.includes('read_admin_dashboard'))
+        return new GraphQLError('Permission denied')
 
       const logs = await CheckInLog.all()
-      return logs.toJSON().map((i) => { i.date = i.created_at; return i; })
+      return logs.toJSON().map(i => {
+        i.date = i.created_at
+        return i
+      })
     },
   },
   Mutation: {
@@ -57,7 +58,8 @@ module.exports = {
       const user = await auth.getUser()
       const perms = await user.getPermissions()
       // fixme: add new permission
-      if (!perms.includes('read_admin_dashboard')) return new GraphQLError('Permission denied')
+      if (!perms.includes('read_admin_dashboard'))
+        return new GraphQLError('Permission denied')
     },
   },
 }
