@@ -16,7 +16,7 @@
   "license": "UNLICENSED",
   "private": true,
   "dependencies": {
-    "@adonisjs/ace": "^5.0.2",
+    "@adonisjs/ace": "^6.8.1",
     "@adonisjs/auth": "^3.0.5",
     "@adonisjs/bodyparser": "^2.0.3",
     "@adonisjs/cors": "^1.0.6",
@@ -37,7 +37,7 @@
     "graphql-subscriptions": "^1.0.0",
     "graphql-tag": "^2.9.2",
     "ical-generator": "^1.7.1",
-    "lodash": "^4.17.10",
+    "lodash": "^4.17.15",
     "mailchimp-api-v3": "^1.12.0",
     "md5": "^2.2.1",
     "moment": "^2.22.2",
